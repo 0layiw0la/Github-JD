@@ -1,23 +1,54 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2 class=" text-3xl font-semibold mb-[15vh] pt-[5vh] text-center">Welcome to My Flask App!</h2>
+  <h2 class="text-3xl font-bold mb-[10vh] pt-[5vh] text-center text-white">
+    Welcome User!
+  </h2>
 
-  <div>
-    <form action="{{ url_for('login') }}" method="POST">
-        <input type="text" name="name" placeholder="Name" required="required"/>
-        <input type="password" name="password" placeholder="password" required="required"/>
-        <input type="submit" value="Login" />
-      </form>
+  <div class="flex justify-center">
+    <form action="{{ url_for('login') }}" method="POST" 
+          class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 w-full max-w-md">
+      
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+          Name
+        </label>
+        <input type="text" name="name" id="name" required 
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 
+                      leading-tight focus:outline-none focus:ring focus:border-blue-500" 
+               placeholder="Enter your name"/>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+          Password
+        </label>
+        <input type="password" name="password" id="password" required 
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 
+                      leading-tight focus:outline-none focus:ring focus:border-blue-500" 
+               placeholder="Enter your password"/>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <input type="submit" value="Login" 
+               class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded 
+                      focus:outline-none focus:shadow-outline cursor-pointer w-full"/>
+      </div>
+
+    </form>
   </div>
+
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }}" role="alert">
-        {{ message }}
-      </div>
-    {% endfor %}
+    <div class="max-w-md mx-auto">
+      {% for category, message in messages %}
+        <div class="bg-{{ 'red-500' if category == 'danger' else 'blue-500' }} 
+                    text-white text-sm font-bold px-4 py-3 rounded-md mt-4">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
   {% endif %}
-{% endwith %}
+  {% endwith %}
 
 {% endblock %}

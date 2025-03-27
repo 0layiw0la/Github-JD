@@ -60,7 +60,7 @@ def register_routes(app,db):
     def index():
         username = session.get('username')  # Retrieve username from session
         if not username:
-            return redirect(url_for('login'))  # Redirect to login if not logged in
+            return redirect(url_for('signup'))  # Redirect to login if not logged in
 
 
         return render_template('index.html', welcome=username)  
