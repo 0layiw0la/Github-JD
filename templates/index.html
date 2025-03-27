@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="text-3xl font-bold mb-[7vh] sm:mb-[10vh] lg:mb-[27vh] sm:text-5xl text-white pt-[5vh] text-center">Welcome {{ welcome }}</h2>
+
+  <div class="w-[70vw]  lg:max-w-[85vw] lg:min-w-fit sm:w-[50vw] m-auto flex flex-col lg:flex-row lg:justify-between gap-3 sm:gap-3 lg:gap-[2vw] text-center">
+    
+    <!-- Card 1: Add Projects -->
+     <a href="{{ url_for('add') }}" class="lg:w-[20vw]">
+    <div class="bg-white rounded-xl p-5 lg:p-2 flex lg:h-full flex-col gap-3 sm:gap-10 lg:gap-3 justify-center items-center w-full  hover:text-[#020091] hover:cursor-pointer hover:border-4 hover:border-black">
+      <h2 class="font-semibold text-xl lg:text-lg sm:text-3xl">Add Projects</h2>
+      <img class="w-[15vw] h-[15vw] lg:w-[5vw] lg:h-[5vw]" src="{{ url_for('static', filename='images/add.png') }}" alt="Add Projects" />
+      <p class="w-[70%] sm:text-xl lg:text-sm">Scrape your GitHub projects or add a new one manually.</p>
+    </div>
+    </a>
+
+    <!-- Card 2: Compare JD -->
+    <a href="{{ url_for('compare') }}" class="lg:w-[20vw]">
+    <div class="bg-white rounded-xl p-5 lg:p-2 lg:h-full flex flex-col gap-3 sm:gap-10 lg:gap-3 justify-center items-center w-full  hover:text-[#020091] hover:cursor-pointer hover:border-4 hover:border-black">
+      <h2 class="font-semibold text-xl lg:text-lg sm:text-3xl">Compare JD</h2>
+      <img class="w-[15vw] h-[15vw] lg:w-[5vw] lg:h-[5vw]" src="{{ url_for('static', filename='images/compare.png') }}" alt="Compare JD" />
+      <p class="w-[70%] sm:text-xl lg:text-sm">Compare JD to GitHub projects, pick the best 5, and generate bullet points.</p>
+    </div>
+  </a>
+
+    <!-- Card 3: Application Tracker 
+    <a href="{{ url_for('track') }}" class="lg:w-[20vw]">
+    <div class="bg-white rounded-xl p-5 lg:p-2 flex lg:h-full flex-col gap-3 sm:gap-10 lg:gap-3 justify-center items-center w-full  hover:text-[#020091] hover:cursor-pointer hover:border-4 hover:border-black">
+      <h2 class="font-semibold text-xl lg:text-lg sm:text-3xl">Application Tracker</h2>
+      <img class="w-[15vw] h-[15vw] lg:w-[5vw] lg:h-[5vw]" src="{{ url_for('static', filename='images/tracker.png') }}" alt="Application Tracker" />
+      <p class="w-[70%] sm:text-xl lg:text-sm">View your progress with saved job applications and update.</p>
+    </div>
+    </a>
+   -->
+
+    <!-- Card 4: View Projects -->
+    <a href="{{ url_for('view') }}" class="lg:w-[20vw]">
+    <div class="bg-white rounded-xl p-5 lg:p-2 flex lg:h-full flex-col gap-3 sm:gap-10 lg:gap-3 justify-center items-center w-full  hover:text-[#020091] hover:cursor-pointer hover:border-4 hover:border-black">
+      <h2 class="font-semibold text-xl lg:text-lg sm:text-3xl">View Projects</h2>
+      <img class="w-[15vw] h-[15vw] lg:w-[5vw] lg:h-[5vw]" src="{{ url_for('static', filename='images/view.png') }}" alt="View Projects" />
+      <p class="w-[70%] sm:text-xl lg:text-sm">View your stored projects and their bullet points if available.</p>
+    </div>
+    </a>
+
+  </div>
+{% endblock %}

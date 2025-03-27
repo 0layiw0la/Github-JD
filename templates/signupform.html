@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class=" text-3xl font-semibold mb-[15vh] pt-[5vh] text-center">Welcome to My Flask App!</h2>
+  <ul>
+    {% for user in users %}
+    <li> {{ user }}</li>
+    {% endfor %}
+  </ul>
+  <div>
+    <form action="{{ url_for('signup') }}" method="POST">
+        <input type="text" name="name" placeholder="Name" required="required"/>
+        <input type="password" name="password" placeholder="password" required="required"/>
+        <input type="submit" value="Sign Up" />
+      </form>
+  </div>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+{% endblock %}

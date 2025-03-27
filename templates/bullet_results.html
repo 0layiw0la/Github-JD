@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex justify-end w-full">
+<a href="{{ url_for('index') }}" class="text-left inline-block mt-5 px-6 py-3 bg-white text-[#020091] rounded-md hover:border-[3px] hover:text-black hover:border-black text-lg">
+    Back to Home
+  </a>
+  </div>
+<h2 class="text-3xl text-center font-semibold mb-8 text-white">Your Bullet Points</h2>
+  <div class="w-[60vw] md:w-[50vw] m-auto bg-white p-6 rounded-xl shadow-lg text-center">
+
+    {% for project, points in bullets.items() %}
+      <div class="text-left mb-8">
+        <h3 class="text-xl font-semibold text-blue-800">{{ project.replace("-", " ") }}</h3>
+        <ul class="list-disc list-inside mt-2 text-gray-700">
+          {% for point in points %}
+            <li class="mt-1">{{ point }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

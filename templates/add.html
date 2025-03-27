@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="sm:text-5xl text-3xl font-bold mb-[10vh] pt-[5vh] text-white text-center">Scrape Projects</h2>
+
+  <!-- Centering the form -->
+  <div class="flex justify-center items-center min-h-[50vh]">
+    <form action="{{ url_for('add') }}" method="POST" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <input 
+        type="text" 
+        name="username" 
+        placeholder="Enter your GitHub Username" 
+        required 
+        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4"
+      />
+      <br/>
+      <input 
+        type="submit" 
+        value="Scrape" 
+        class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-800 transition duration-300 cursor-pointer"
+      />
+    </form>
+  </div>
+
+  <!-- Scraping div (hidden by default) -->
+  <div id="scraping-div" class="text-center text-xl font-semibold text-blue-600 mt-6 hidden">
+    Scraping...
+  </div>
+
+    <!-- Redirect Message (hidden by default) -->
+    <div id="redirect-message" class="text-center text-gray-400 mt-2 hidden">
+      Will redirect to home page once done...
+    </div>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-messages" class="mt-6 text-center">
+      {% for category, message in messages %}
+        <div class="bg-{{ 'red' if category == 'error' else 'green' }}-500 text-white p-3 rounded-lg mb-2">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Auto-clear flash messages after 5 seconds -->
+    <script>
+      setTimeout(function() {
+        document.getElementById("flash-messages").style.display = "none";
+      }, 5000);
+
+      function showLoadingDiv() {
+        let scrapingDiv = document.getElementById("scraping-div");
+        let redirectMessage = document.getElementById("redirect-message");
+        scrapingDiv.classList.remove("hidden"); // Show the scraping message
+        redirectMessage.classList.remove("hidden"); // Show the redirect message
+
+      // Flicker effect
+      setInterval(() => {
+        scrapingDiv.style.visibility = (scrapingDiv.style.visibility === "hidden") ? "visible" : "hidden";
+      }, 500);
+    }
+    </script>
+  {% endif %}
+  {% endwith %}
+
+{% endblock %}

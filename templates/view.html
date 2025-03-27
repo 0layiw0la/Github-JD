@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{%block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tables.css') }}">
+{%endblock%}
+
+{% block content %}
+<div class="text-right mt-6  font-bold">
+    <a class="border bg-white w-fit p-3 rounded-md" href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+</div>
+    <h2 class="text-3xl font-bold mb-6 mt-3 text-center text-white">Your Scraped Projects</h2>
+
+
+    {% if table %}
+        <div class="overflow-x-auto">
+            {{ table | safe }}
+        </div>
+    {% else %}
+        <p class="text-center text-gray-600">No projects found.</p>
+    {% endif %}
+
+
+{% endblock %}
