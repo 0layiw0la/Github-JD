@@ -1,6 +1,22 @@
 # Github-JD
 A tool to compare job descriptions with my existing projects and filter relevant ones and generate relevant bullet points. It also acts as a personal database for storing projects and bullet points, making resume updates easier. Since entry-level roles often require casting a wide net, this helps keep track of different projects for quick access.
 
+Web App link: [Will be added soon]()
+
+<h2>Built With</h2>
+<ul>
+    <li>Flask</li>
+    <li>TailwindCSS</li>
+</ul>
+
+<h2>Currently Adding</h2>
+<ul>
+    <li>Rate limiting so i can open it to more users</li>
+    <li>Edit or add bullet points on your own (don't use AI).</li>
+    <li>Checking for pre-existing bullet points before using Gemini.</li>
+    <li>README scraping for more detailed comparisons.</li>
+</ul>
+
 <h2>Clone the Repository</h2>
 <p>To clone this repository, run:</p>
 <pre>
@@ -28,5 +44,6 @@ python main.py
 
 <p>Ensure you have Python installed and the required dependencies set up before running the script.</p>
 
-</body>
-</html>
+
+
+
