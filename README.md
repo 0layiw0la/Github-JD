@@ -7,6 +7,7 @@ Web App link: [Will be added soon]()
 <ul>
     <li>Flask</li>
     <li>TailwindCSS</li>
+    <li>PostgreSQL</li>
 </ul>
 
 <h2>Currently Adding</h2>
