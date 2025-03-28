@@ -1,32 +1,40 @@
 table {
-    background-color:white;
+    background-color: white;
     width: 90%;
-    color:white;
-    margin:auto;
-    border-collapse: collapse;
+    margin: auto;
+    border-collapse: separate;
+    border-spacing: 0; /* Ensures no spacing between cells */
     margin-top: 20px;
+    border-radius:2vw; /* Adds rounded corners */
+    overflow: hidden; /* Ensures rounded borders are applied properly */
+}
+
+tr {
+    border: 1px solid black;
 }
 
 th, td {
     border: none;
     padding: 6px;
-    text-align: left;
+    text-align: center;
 }
 
 th {
+    background-color:#648fcf;
+    color:#fff;
     font-weight: bold;
-    text-align:center;
+    font-size: large;
+    text-align: center; /* Centers only the table headers */
+    padding:4vh 0;
 }
 
-
-
-td:hover{
+td:hover {
     background-color: #ddd;
-    color:black;
-    font:bold;
+    color: black;
+    font-weight: bold;
 }
+
 td {
-    
-    min-width:25vw; /* Prevents text from being too wide */
+    min-width: 25vw; /* Prevents text from being too wide */
     word-wrap: break-word;
 }

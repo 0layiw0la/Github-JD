@@ -13,7 +13,7 @@ def keep_alive():
             print("Pinged the app to keep it alive!")
         except Exception as e:
             print(f"Error pinging: {e}")
-        time.sleep(600)  # Ping every 10 minutes
+        time.sleep(300)  # Ping every 10 minutes
 
 # Start keep_alive() in a separate thread
 threading.Thread(target=keep_alive, daemon=True).start()
