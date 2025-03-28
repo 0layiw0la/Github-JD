@@ -9,7 +9,7 @@ import os
 def keep_alive():
     while True:
         try:
-            requests.get("hhttps://github-comparison.onrender.com/")
+            requests.get("https://github-comparison.onrender.com/")
             print("Pinged the app to keep it alive!")
         except Exception as e:
             print(f"Error pinging: {e}")
