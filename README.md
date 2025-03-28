@@ -8,6 +8,7 @@ Web App link: [Will be added soon]()
     <li>Flask</li>
     <li>TailwindCSS</li>
     <li>PostgreSQL</li>
+    <li>Beautiful Soup</li>
 </ul>
 
 <h2>Currently Adding</h2>
