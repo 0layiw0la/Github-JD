@@ -1,10 +1,12 @@
 table {
     background-color: white;
-    width: 90%;
+    width: 85vw;
     margin: auto;
-    border-collapse: separate;
+    border-collapse: collapse;
+    table-layout: auto; 
     border-spacing: 0; /* Ensures no spacing between cells */
     margin-top: 20px;
+    padding:8px;
     border-radius:2vw; /* Adds rounded corners */
     overflow: hidden; /* Ensures rounded borders are applied properly */
 }
@@ -16,7 +18,6 @@ tr {
 th, td {
     border: none;
     padding: 6px;
-    text-align: center;
 }
 
 th {
@@ -35,6 +36,31 @@ td:hover {
 }
 
 td {
-    min-width: 25vw; /* Prevents text from being too wide */
+    min-width:20vw; /* Prevents text from being too wide */
     word-wrap: break-word;
+    padding-left:1vw;
+    border-left:1px solid;
 }
+
+@media (max-width: 639px) {
+    table{
+        padding:12px;
+        width:90vw;
+
+    }
+    th{
+        font-size: small;
+    }
+    td{
+        font-size: x-small;
+        white-space: normal;
+    }
+    th:nth-child(1), td:nth-child(1) {
+        max-width: 5vw; /* Adjust as needed */
+        
+    }
+
+  }
+  @media (max-width: 450px) {
+
+  }
