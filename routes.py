@@ -259,6 +259,7 @@ def register_routes(app,db):
     """ 
         Placeholder for a tracking feature. Intended for future implementation
         of project tracking functionality.
+    """
     
     @app.route('/track', methods=['GET','POST'])
     def track():
@@ -279,4 +280,4 @@ def register_routes(app,db):
                 flash("Username already exists. Please choose another one.", "error")
 
             return redirect(url_for('signup'))  # Redirect to avoid form resubmission
-    """
+    
