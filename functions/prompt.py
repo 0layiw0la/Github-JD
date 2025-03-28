@@ -5,7 +5,6 @@ import pandas as pd
 import json
 from dotenv import load_dotenv
 import re
-
 import os
 
 
@@ -15,6 +14,7 @@ SECRET_KEY = os.environ.get("GEMINI_API_KEY")
 
 def get_descriptions(project_names):
     """Fetch descriptions for the given project names from the database."""
+    
     username = session.get("username")
     if not username:
         return {}
@@ -26,6 +26,7 @@ def get_descriptions(project_names):
 
 
 def load_data():
+    """Returns the all the projects and their descriptions as one text in a list for prompting"""
     username = session.get('username')
     if not username:
         return []
@@ -66,6 +67,11 @@ def compare_jd(jd,projects):
     
 
 def generate_bullets(project_data):
+    """
+    Generates bullet points to match the OUTPUT_FORMAT constant
+    """
+
+
     OUTPUT_FORMAT = "{projectname:[point1, point2, point3, point4], projectname:[point1, point2, ...]}"
     PROMPT = f"""
         Generate up to four STAR-format bullet points per project in {project_data}, using strong action verbs and concise resume-style phrasing. Output strictly in this format:

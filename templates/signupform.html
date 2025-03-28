@@ -42,6 +42,23 @@
       </div>
       
     </form>
+         <!-- Flash Messages at the bottom of the form -->
+         {% with messages = get_flashed_messages(with_categories=true) %}
+         {% if messages %}
+           <div class="mt-4 border-[3px]">
+             {% for category, message in messages %}
+               <div class="text-white text-center px-4 py-2 rounded 
+                           {% if category == 'success' %} bg-green-500 {% elif category == 'error' %} bg-red-500 {% else %} bg-gray-500 {% endif %}">
+                 {{ message }}
+               </div>
+             {% endfor %}
+           </div>
+
+           <script>
+            setTimeout(() => document.getElementById('flash-messages')?.remove(), 1000);
+          </script>
+         {% endif %}
+         {% endwith %}
   </div>
 
 {% endblock %}

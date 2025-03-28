@@ -1,5 +1,5 @@
 table {
-    background-color:inherit;
+    background-color:white;
     width: 90%;
     color:white;
     margin:auto;
@@ -8,13 +8,14 @@ table {
 }
 
 th, td {
-    border: 3px solid #ddd;
+    border: none;
     padding: 6px;
     text-align: left;
 }
 
 th {
     font-weight: bold;
+    text-align:center;
 }
 
 

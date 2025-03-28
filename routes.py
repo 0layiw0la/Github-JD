@@ -13,26 +13,31 @@ import os
 
 def register_routes(app,db):
 
-
+    """Handles user signup, allowing a maximum of 15 users to register. """
     @app.route('/signup', methods=['GET','POST'])
     def signup():
         if request.method == 'GET':
-            users = User.query.all()
-            return render_template('signupform.html',users=users)
+            return render_template('signupform.html')
+        
         elif request.method == 'POST':
             name = request.form.get('name')
             password = request.form.get('password')
-            print(f"Received: {name}, {password}") 
-            try:
-                user = User(username=name, password=password)
+
+            user_count = User.query.count()  #Getting the number of stored users
+            if user_count >=15: #if users greater than 15 tell them not allowed and an enless loop of reloading signup
+                flash("User limit reached! No more signups allowed.", "error")
+                return redirect(url_for('signup'))
+            
+            try: #Adding the user to the db if the maximum number hasnt been reached
+                user = User(username=name, password_hash=password)
                 db.session.add(user)
                 db.session.commit()
-                flash("User created successfully!", "success")
+                
             except IntegrityError:
                 db.session.rollback()  # Rollback the transaction to prevent a corrupted session
                 flash("Username already exists. Please choose another one.", "error")
 
-            return redirect(url_for('signup'))  # Redirect to avoid form resubmission
+            return redirect(url_for('login'))  # Redirect to avoid form resubmission
 
 
     @app.route('/login', methods=['GET','POST'])
@@ -45,7 +50,7 @@ def register_routes(app,db):
             print(f"Received: {name}, {password}") 
 
             # Check if user exists in the database
-            user = User.query.filter_by(username=name, password=password).first()
+            user = User.query.filter_by(username=name, password_hash=password).first()
 
             if user:
                 session['username'] = user.username  # Store username in session
@@ -56,15 +61,20 @@ def register_routes(app,db):
                 return redirect(url_for('login'))  # Redirect back to login
 
 
+
     @app.route('/')
     def index():
         username = session.get('username')  # Retrieve username from session
         if not username:
-            return redirect(url_for('signup'))  # Redirect to login if not logged in
+            return redirect(url_for('signup'))  # Redirect to signup if not logged in
 
 
         return render_template('index.html', welcome=username)  
     
+
+
+
+    """ Allows users to add projects from GitHub by scraping data. """
     @app.route('/add', methods=['GET', 'POST'])
     def add():
         if request.method == 'GET':
@@ -103,14 +113,14 @@ def register_routes(app,db):
                     db.session.commit()
                     flash(f"Successfully scraped and added new projects for {username}!", "success")
 
-                return redirect(url_for('index'))  # ✅ Redirect to index on success
+                return redirect(url_for('index'))  # Redirect to index on success
 
-            except requests.exceptions.RequestException:  # ✅ Fixed typo
+            except requests.exceptions.RequestException:  
                 flash("Network error occurred while scraping. Please try again!", "danger")
 
             except Exception as e:
                 db.session.rollback()
-                print(f"Unexpected error: {e}")  # ✅ Log error but don't flash user
+                print(f"Unexpected error: {e}")  #Log error but don't flash user
 
             return redirect(url_for('add'))  # Stay on `/add` if an error occurs
 
@@ -118,6 +128,13 @@ def register_routes(app,db):
         
     @app.route('/compare', methods=['GET','POST'])
     def compare():
+
+        """ 
+        Compares job descriptions against stored project data and returns relevant projects.
+        Users can upload a job description file or enter text manually.
+        """
+
+        # Check if a job description file was uploaded
         if request.method == 'GET':
             return render_template('compare.html')
         jd_text = ""
@@ -128,18 +145,23 @@ def register_routes(app,db):
                 file.save(file_path)
                 jd_text = process_pdf(file_path)
 
+        # If no file was provided, try extracting text from form input
         if not jd_text:
             jd_text = process_text(request.form.get('jd_text', ''))
 
+        # Ensure a job description was provided
         if not jd_text:
             flash("Please provide a job description.", "warning")
             return redirect(url_for('compare'))
 
-        projects = load_data()
+        projects = load_data() # Load stored project data
+        
+        # If no projects are found in the database
         if not projects:
             flash("No projects found.", "info")
             return redirect(url_for('compare'))
 
+         # Compare job description with stored projects
         top_projects = compare_jd(jd_text, projects)
         
         return render_template('compare_results.html', projects=top_projects)
@@ -147,6 +169,12 @@ def register_routes(app,db):
 
     @app.route("/bullet", methods=["POST"])
     def bullet():
+
+        """ 
+        Generates bullet points for project descriptions based on user input.
+        Users select projects and provide additional input to refine bullet points.
+        """
+         
         project_names = []
         user_inputs = {}
 
@@ -199,6 +227,12 @@ def register_routes(app,db):
     
     @app.route('/view', methods=['GET'])
     def view():
+
+        """ 
+        Displays all stored projects for the logged-in user in a table format.
+        The table includes project names, descriptions, and generated bullet points.
+        """
+
         username = session.get('username')
         print(username)  
         if not username:
@@ -221,6 +255,11 @@ def register_routes(app,db):
         return render_template('view.html', table=table_html)
 
 
+
+    """ 
+        Placeholder for a tracking feature. Intended for future implementation
+        of project tracking functionality.
+    
     @app.route('/track', methods=['GET','POST'])
     def track():
         if request.method == 'GET':
@@ -240,3 +279,4 @@ def register_routes(app,db):
                 flash("Username already exists. Please choose another one.", "error")
 
             return redirect(url_for('signup'))  # Redirect to avoid form resubmission
+    """

@@ -48,6 +48,9 @@
         </div>
       {% endfor %}
     </div>
+    <script>
+      setTimeout(() => document.getElementById('flash-messages')?.remove(), 1000);
+    </script>
   {% endif %}
   {% endwith %}
 
