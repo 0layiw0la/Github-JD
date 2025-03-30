@@ -14,7 +14,6 @@ Web App link: [Will be added soon]()
 <h2>Currently Adding</h2>
 <ul>
     <li>Edit or add bullet points on your own (don't use AI).</li>
-    <li>Checking for pre-existing bullet points before using Gemini.</li>
     <li>README scraping for more detailed comparisons.</li>
 </ul>
 
