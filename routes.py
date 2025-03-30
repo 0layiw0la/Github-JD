@@ -268,7 +268,7 @@ def register_routes(app,db):
             if user:
                 db.session.delete(user)
                 db.session.commit()
-                flash(f"User '{username}' deleted successfully.", "success")
+                print(f"User '{username}' deleted successfully.", "success")
                 return redirect(url_for('signup'))  # Redirect to signup after deletion
             else:
                 flash("User not found!", "error")
