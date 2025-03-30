@@ -7,7 +7,7 @@ table {
     border-spacing: 0; /* Ensures no spacing between cells */
     margin-top: 20px;
     padding:8px;
-    border-radius:2vw; /* Adds rounded corners */
+
     overflow: hidden; /* Ensures rounded borders are applied properly */
 }
 
@@ -26,7 +26,7 @@ th {
     font-weight: bold;
     font-size: large;
     text-align: center; /* Centers only the table headers */
-    padding:4vh 0;
+    padding:1vh 0;
 }
 
 td:hover {

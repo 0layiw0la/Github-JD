@@ -3,9 +3,8 @@
 {% block content %}
   <h2 class="sm:text-5xl text-3xl font-bold mb-[10vh] pt-[5vh] text-white text-center">Scrape Projects</h2>
 
-  <!-- Centering the form -->
   <div class="flex justify-center items-center min-h-[50vh]">
-    <form action="{{ url_for('add') }}" method="POST" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+    <form action="{{ url_for('add') }}" method="POST" class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md" onsubmit="return showLoadingDiv()">
       <input 
         type="text" 
         name="username" 
@@ -23,18 +22,18 @@
   </div>
 
   <!-- Scraping div (hidden by default) -->
-  <div id="scraping-div" class="text-center text-xl font-semibold text-blue-600 mt-6 hidden">
+  <div id="scraping-div" class="text-center text-xl font-semibold text-white mt-6 hidden">
     Scraping...
   </div>
 
     <!-- Redirect Message (hidden by default) -->
-    <div id="redirect-message" class="text-center text-gray-400 mt-2 hidden">
+    <div id="redirect-message" class="text-center text-white-400 mt-2 hidden">
       Will redirect to home page once done...
     </div>
 
 
 
-    <!-- Auto-clear flash messages after 5 seconds -->
+
     <script>
 
       function showLoadingDiv() {

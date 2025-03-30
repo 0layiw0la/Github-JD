@@ -254,7 +254,25 @@ def register_routes(app,db):
         print(table_html)
         return render_template('view.html', table=table_html)
 
+    @app.route('/delete', methods=['GET', 'POST'])
+    def delete_user():
+        if request.method == 'GET':
+            return render_template('delete.html')
 
+        elif request.method == 'POST':
+            username = request.form.get('username')
+
+            # Query for the user
+            user = User.query.filter_by(username=username).first()
+
+            if user:
+                db.session.delete(user)
+                db.session.commit()
+                flash(f"User '{username}' deleted successfully.", "success")
+                return redirect(url_for('signup'))  # Redirect to signup after deletion
+            else:
+                flash("User not found!", "error")
+                return redirect(url_for('delete_user'))  # Stay on delete page if user not found
 
     """ 
         Placeholder for a tracking feature. Intended for future implementation

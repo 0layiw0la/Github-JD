@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="text-3xl font-bold mb-[10vh] pt-[5vh] text-center text-white">
+    Reset Password
+  </h2>
+
+<div class="flex justify-center">
+    <form action="{{ url_for('delete_user') }}" method="POST" 
+          class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 w-full max-w-md">
+      
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+          Enter you username:
+        </label>
+        <input type="text" name="username" id="username" required 
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 
+                      leading-tight focus:outline-none focus:ring focus:border-blue-500" 
+               />
+      </div>
+
+      <div class="flex flex-col space-y-4">
+        <input type="submit" value="Reset" 
+               class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded 
+                      focus:outline-none focus:shadow-outline cursor-pointer w-full"/>
+      </div>
+
+         <!-- Flash Messages at the bottom of the form -->
+         {% with messages = get_flashed_messages(with_categories=true) %}
+         {% if messages %}
+           <div id='flash-messages' class="mt-4 border-[3px]">
+             {% for category, message in messages %}
+               <div class="text-white text-center px-4 py-2 rounded 
+                           {% if category == 'success' %} bg-green-500 {% elif category == 'error' %} bg-red-500 {% else %} bg-gray-500 {% endif %}">
+                 {{ message }}
+               </div>
+             {% endfor %}
+           </div>
+
+           <script>
+            setTimeout(() => document.getElementById('flash-messages')?.remove(), 5000);
+          </script>
+         {% endif %}
+         {% endwith %}
+
+{%endblock%}

@@ -11,12 +11,12 @@
       
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
-          Name
+          Username
         </label>
         <input type="text" name="name" id="name" required 
                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 
                       leading-tight focus:outline-none focus:ring focus:border-blue-500" 
-               placeholder="Enter your name"/>
+               placeholder="Enter your Username"/>
       </div>
 
       <div class="mb-6">
@@ -29,10 +29,22 @@
                placeholder="Enter your password"/>
       </div>
 
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col space-y-4">
         <input type="submit" value="Login" 
                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded 
                       focus:outline-none focus:shadow-outline cursor-pointer w-full"/>
+        
+        <a href="{{ url_for('signup') }}" 
+           class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded 
+                  focus:outline-none focus:shadow-outline text-center w-full">
+          Back to Sign up
+        </a>
+
+        <a href="{{ url_for('delete_user') }}" 
+           class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded 
+                  focus:outline-none focus:shadow-outline text-center w-full">
+          Reset Password
+        </a>
       </div>
 
     </form>
@@ -40,7 +52,7 @@
 
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    <div class="max-w-md mx-auto">
+    <div id = 'flash-messages' class="max-w-md mx-auto">
       {% for category, message in messages %}
         <div class="bg-{{ 'red-500' if category == 'danger' else 'blue-500' }} 
                     text-white text-sm font-bold px-4 py-3 rounded-md mt-4">
@@ -49,7 +61,7 @@
       {% endfor %}
     </div>
     <script>
-      setTimeout(() => document.getElementById('flash-messages')?.remove(), 1000);
+      setTimeout(() => document.getElementById('flash-messages')?.remove(), 5000);
     </script>
   {% endif %}
   {% endwith %}
