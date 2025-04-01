@@ -47,7 +47,6 @@ def register_routes(app,db):
         elif request.method == 'POST':
             name = request.form.get('name')
             password = request.form.get('password')
-            print(f"Received: {name}, {password}") 
 
             # Check if user exists in the database
             user = User.query.filter_by(username=name, password_hash=password).first()
@@ -55,7 +54,7 @@ def register_routes(app,db):
             if user:
                 session['username'] = user.username  # Store username in session
                 flash('Login successful!', 'success')
-                return redirect(url_for('index', username=user.username))  # Pass username to index
+                return redirect(url_for('index'))  
             else:
                 flash('Invalid username or password. Please try again.', 'error')
                 return redirect(url_for('login'))  # Redirect back to login
@@ -233,25 +232,21 @@ def register_routes(app,db):
         The table includes project names, descriptions, and generated bullet points.
         """
 
-        username = session.get('username')
-        print(username)  
+        username = session.get('username') 
         if not username:
             flash("You must be logged in to view projects!", "warning")
             return redirect(url_for('login'))  
 
         # Fetch all projects for the user in a single query
         user_projects = db.session.query(Projects.projectname, Projects.description,Projects.bulletpoints).filter_by(username=username).all()
-        print(user_projects)
         if not user_projects:
             flash("No projects found.", "info")
             return render_template('view.html', table=None)
 
         # Convert query result to DataFrame
         df = pd.DataFrame(user_projects, columns=["Project Name", "Description","Bullet Points"])
-        print(df.head(5))
         # Convert DataFrame to HTML table
         table_html = df.to_html(classes="table table-striped table-bordered", index=False,escape=False)
-        print(table_html)
         return render_template('view.html', table=table_html)
 
     @app.route('/delete', methods=['GET', 'POST'])
@@ -287,7 +282,7 @@ def register_routes(app,db):
         elif request.method == 'POST':
             name = request.form.get('name')
             password = request.form.get('password')
-            print(f"Received: {name}, {password}") 
+        
             try:
                 user = User(username=name, password=password)
                 db.session.add(user)
