@@ -8,7 +8,9 @@ Web App link: [here](https://github-comparison.onrender.com/)
     <li>Flask</li>
     <li>TailwindCSS</li>
     <li>PostgreSQL</li>
+    <li>Gemini API</li>
     <li>Beautiful Soup</li>
+    <li>Pandas</li>
 </ul>
 
 <h2>Currently Adding</h2>
