@@ -7,6 +7,7 @@ from functions.upload import allowed_file,process_pdf,process_text,UPLOAD_FOLDER
 import requests
 import pandas as pd 
 import os
+import json
 
 
 
@@ -209,7 +210,8 @@ def register_routes(app,db):
             ).first()
 
             if project:
-                project.bulletpoints = "<br/><br/>".join(bullets)  # Store bullets as newline-separated text
+                project.bulletpoints = json.dumps(bullets)
+                #project.bulletpoints = "<br/><br/>".join(bullets)  # Store bullets as newline-separated text
 
         try:
             db.session.commit()
@@ -239,15 +241,21 @@ def register_routes(app,db):
 
         # Fetch all projects for the user in a single query
         user_projects = db.session.query(Projects.projectname, Projects.description,Projects.bulletpoints).filter_by(username=username).all()
+        print(user_projects)
         if not user_projects:
             flash("No projects found.", "info")
             return render_template('view.html', table=None)
+        formatted_projects = []
 
-        # Convert query result to DataFrame
-        df = pd.DataFrame(user_projects, columns=["Project Name", "Description","Bullet Points"])
-        # Convert DataFrame to HTML table
-        table_html = df.to_html(classes="table table-striped table-bordered", index=False,escape=False)
-        return render_template('view.html', table=table_html)
+        for name, desc, bullets in user_projects:
+            formatted_projects.append({
+                "name": name,
+                "description": desc or "No description provided",
+                "bullets": json.loads(bullets) if bullets is not None else None   # expect list of strings for bullets
+            })
+
+        
+        return render_template('view.html', projects=formatted_projects)
 
     @app.route('/delete', methods=['GET', 'POST'])
     def delete_user():
@@ -274,23 +282,4 @@ def register_routes(app,db):
         of project tracking functionality.
     """
     
-    @app.route('/track', methods=['GET','POST'])
-    def track():
-        if request.method == 'GET':
-            users = User.query.all()
-            return render_template('add.html',users=users)
-        elif request.method == 'POST':
-            name = request.form.get('name')
-            password = request.form.get('password')
-        
-            try:
-                user = User(username=name, password=password)
-                db.session.add(user)
-                db.session.commit()
-                flash("User created successfully!", "success")
-            except IntegrityError:
-                db.session.rollback()  # Rollback the transaction to prevent a corrupted session
-                flash("Username already exists. Please choose another one.", "error")
-
-            return redirect(url_for('signup'))  # Redirect to avoid form resubmission
     

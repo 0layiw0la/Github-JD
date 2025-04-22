@@ -6,7 +6,7 @@ import os
 
 load_dotenv() 
 
-DATABASE = os.environ.get("DATABASE_URL")
+DATABASE = os.environ.get("SQL_DATABASE_URL")
 
 
 db = SQLAlchemy()

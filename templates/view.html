@@ -11,13 +11,22 @@
     <h2 class="text-3xl font-bold mb-6  text-center text-white">Your Scraped Projects</h2>
 
 
-    {% if table %}
-        <div class="overflow-x-auto ">
-            {{ table | safe }}
-        </div>
+    {% for project in projects %}
+  <div>
+    <p><strong>{{ project.name }}</strong></p>
+    <p>{{ project.description }}</p>
+    {% if project.bullets%}
+      <ul>
+        {% for bullet in project.bullets %}
+          <li>{{ bullet }}</li>
+        {% endfor %}
+      </ul>
     {% else %}
-        <p class="text-center text-gray-600">No projects found.</p>
+    <p class="text-center text-gray-600">No projects found.</p>
     {% endif %}
+  </div>
+{% endfor %}
+
 
 
 {% endblock %}
