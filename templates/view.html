@@ -9,24 +9,33 @@
     <a class="border bg-white w-fit p-3 rounded-md sm:text-small" href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
 </div>
     <h2 class="text-3xl font-bold mb-6  text-center text-white">Your Scraped Projects</h2>
-
-
+    <div class="max-w-[90vw] m-auto bg-white p-6 rounded-xl shadow-lg ">
+  {% if projects %}
     {% for project in projects %}
-  <div>
-    <p><strong>{{ project.name }}</strong></p>
-    <p>{{ project.description }}</p>
+  <div class="mb-8">
+    <div class="flex gap-2">
+      <h3 class="text-lg font-semibold text-blue-800">{{ project.name.replace("-", " ").upper() }}</h3>
+      <button class="btn-primary items-end" type="button">Edit</button>
+      <button class="btn-primary items end" type="button">Generate Bullets</button>
+    </div>
     {% if project.bullets%}
-      <ul>
+    <ul class="list-disc list-inside mt-3 ml-5 text-gray-700 text-sm">
         {% for bullet in project.bullets %}
-          <li>{{ bullet }}</li>
+          <li class="mt-1">{{ bullet }}</li>
         {% endfor %}
       </ul>
     {% else %}
-    <p class="text-center text-gray-600">No projects found.</p>
+    <p class="text-white text-sm">No Bullet points</p>
     {% endif %}
   </div>
-{% endfor %}
+    {% endfor %}
+  {% else %}
+  <p class="text-center text-white-600">No projects found.</p>
+  {% endif %}
 
-
+</div>
 
 {% endblock %}
+
+
+
