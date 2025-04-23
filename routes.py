@@ -289,9 +289,8 @@ def register_routes(app,db):
             username = session["username"]
             bullets_tup = db.session.query(Projects.bulletpoints).filter(Projects.username == username, Projects.projectname == project_name).first()
             bullets= json.loads(bullets_tup[0])
-            for i in bullets:
-                print(i)
             return render_template("edit.html", project_name=project_name, bullets=bullets)
+        
         elif request.method == 'POST':
             project_name = request.form.get("project_name")
             username = session.get("username")

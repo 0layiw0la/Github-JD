@@ -1,17 +1,19 @@
 {% extends "base.html" %}
 {%block content %}
-<form method="POST">
+<div class="min-h-screen min-w-screen flex items-center justify-center">
+<form method="POST" class="flex flex-col gap-3 w-[90vw] m-auto bg-white p-6 rounded-xl shadow-lg">
     <input type="hidden" name="project_name" value="{{ project_name }}">
+    <h3 class="text-lg md:text-2xl font-semibold text-blue-800 mb-2">{{ project_name.replace("-", " ").upper() }}</h3>
 
     {% for bullet in bullets %}
-        <input type="text" name="bullets" value="{{ bullet }}" class="form-control my-2">
+        <input type="text" name="bullets" value="{{ bullet }}" class="form-control p-2 border-b-[2px] ">
     {% endfor %}
 
     <!-- Option to add new bullets -->
-    <input type="text" name="bullets" placeholder="Add new bullet" class="form-control my-2">
+    <input type="text" name="bullets" placeholder="Add new bullet" class="form-control my-3 p-2 border-b-[2px]">
 
-    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="submit" class="btn btn-primary bg-blue-600 text-white hover:text-blue-800 rounded-lg hover:bg-white hover:border-[1px] hover:border-blue-600">Save</button>
 </form>
-
+</div>
 
 {%endblock%}
