@@ -13,10 +13,10 @@
   {% if projects %}
     {% for project in projects %}
   <div class="mb-8">
-    <div class="flex gap-2">
-      <h3 class="text-lg font-semibold text-blue-800">{{ project.name.replace("-", " ").upper() }}</h3>
-      <button class="btn-primary items-end" type="button">Edit</button>
-      <button class="btn-primary items end" type="button">Generate Bullets</button>
+    <div class="flex gap-2 items-center">
+      <h3 class="text-lg md:text-xl font-semibold text-blue-800">{{ project.name.replace("-", " ").upper() }}</h3>
+      <button class="btn-primary items-end py-1 px-3 bg-blue-600 text-white hover:text-blue-800 rounded-lg hover:bg-white hover:border-[1px] hover:border-blue-600" type="button">Edit</button>
+      <button class="btn-primary items end py-1 px-3 bg-blue-600 text-white hover:text-blue-800 rounded-lg hover:bg-white hover:border-[1px] hover:border-blue-600" type="button">Add</button>
     </div>
     {% if project.bullets%}
     <ul class="list-disc list-inside mt-3 ml-5 text-gray-700 text-sm">
