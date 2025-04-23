@@ -211,7 +211,6 @@ def register_routes(app,db):
 
             if project:
                 project.bulletpoints = json.dumps(bullets)
-                #project.bulletpoints = "<br/><br/>".join(bullets)  # Store bullets as newline-separated text
 
         try:
             db.session.commit()
@@ -283,13 +282,33 @@ def register_routes(app,db):
     """
     
 
-    @app.route('/edit_project')
+    @app.route('/edit_project',methods=['POST','GET'])
     def edit_project():
-        project_name = request.args.get('name')
-        username = session["username"]
-        bullets = db.session.query(Projects.bulletpoints).filter(Projects.username == username, Projects.projectname == project_name).first()
-        print(bullets)
-        return f"{project_name} — {bullets.bulletpoints if bullets else 'No bullets found'}"
+        if request.method == 'GET':
+            project_name = request.args.get('name')
+            username = session["username"]
+            bullets = db.session.query(Projects.bulletpoints).filter(Projects.username == username, Projects.projectname == project_name).first()
+            
+            return render_template("edit.html", project_name=project_name, bullets=bullets)
+        elif request.method == 'POST':
+            project_name = request.form.get("project_name")
+            username = session.get("username")
+            bullets = request.form.getlist("bullets")  # Comes from multiple inputs with name="bullets"
+
+            project = db.session.query(Projects).filter_by(username=username, projectname=project_name).first()
+
+            if project:
+                project.bulletpoints = json.dumps(bullets)
+
+            try:
+                db.session.commit()
+                flash("Bullet points successfully updated!", "success")
+            except Exception as e:
+                db.session.rollback()
+                flash("Error saving bullet points.", "error")
+                print("Error:", e)
+
+            return redirect(url_for("view"))
 
 
     @app.route('/add_bullet')

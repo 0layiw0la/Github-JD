@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{%block content %}
+<form method="POST">
+    <input type="hidden" name="project_name" value="{{ project_name }}">
+
+    {% for bullet in bullets %}
+        <input type="text" name="bullets" value="{{ bullet }}" class="form-control my-2">
+    {% endfor %}
+
+    <!-- Option to add new bullets -->
+    <input type="text" name="bullets" placeholder="Add new bullet" class="form-control my-2">
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+
+{%endblock%}
