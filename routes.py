@@ -282,4 +282,20 @@ def register_routes(app,db):
         of project tracking functionality.
     """
     
-    
+    from flask import request
+
+    @app.route('/edit_project')
+    def edit_project():
+        name = request.args.get('name')
+        bullets = request.args.get('bullets')
+        if bullets:
+            bullets = json.loads(bullets)
+        return (name,bullets)
+
+    @app.route('/add_bullet')
+    def add_bullet():
+        name = request.args.get('name')
+        bullets = request.args.get('bullets')
+        if bullets:
+            bullets = json.loads(bullets)
+        return (name,bullets)
