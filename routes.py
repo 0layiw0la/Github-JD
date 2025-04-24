@@ -73,7 +73,12 @@ def register_routes(app,db):
     
 
 
-
+    @app.route('/details', methods=['GET','POST'])
+    def details():
+        if request.method == 'GET':
+            return render_template('details.html')
+        
+        
     """ Allows users to add projects from GitHub by scraping data. """
     @app.route('/add', methods=['GET', 'POST'])
     def add():
