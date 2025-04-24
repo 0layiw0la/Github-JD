@@ -23,6 +23,16 @@ class User(db.Model):
     pid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.Text, nullable=False, unique=True)
     password_hash = db.Column(db.Text, nullable=False)
+    fullname = db.Column(db.Text, nullable=True)
+    programming_languages = db.Column(db.Text, nullable=True)  # e.g., JSON string or comma-separated
+    libraries = db.Column(db.Text, nullable=True)              # e.g., "pandas, NumPy"
+    tools = db.Column(db.Text, nullable=True)                  # e.g., "VSCode, Git, Figma"
+    school_name = db.Column(db.Text, nullable=True)
+    course = db.Column(db.Text, nullable=True)
+    duration = db.Column(db.Text, nullable=True)               # e.g., "2021 - 2025"
+    relevant_course_work = db.Column(db.Text, nullable=True)   # store as JSON string (e.g., '["Data Structures", "OS"]')
+    extracurriculars = db.Column(db.Text, nullable=True)       # store as JSON string
+    
 
     def set_password(self, password):
         """Hashes the password before storing it"""
