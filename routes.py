@@ -270,7 +270,6 @@ def register_routes(app,db):
             if user:
                 db.session.delete(user)
                 db.session.commit()
-                print(f"User '{username}' deleted successfully.", "success")
                 return redirect(url_for('signup'))  # Redirect to signup after deletion
             else:
                 flash("User not found!", "error")
@@ -297,7 +296,6 @@ def register_routes(app,db):
             bullets = request.form.getlist("bullets")  # Comes from multiple inputs with name="bullets"
 
             project = db.session.query(Projects).filter_by(username=username, projectname=project_name).first()
-            print(bullets)
             final_bullets = []
             for i in bullets:
                 if i != "":
@@ -324,13 +322,30 @@ def register_routes(app,db):
             description_tup = db.session.query(Projects.description).filter(Projects.username == username, Projects.projectname == project_name).first()
             description = description_tup[0]
             return render_template("Generate_single_proj.html",project_name=project_name,description=description)
+        
         elif request.method == 'POST':
+            username = session.get("username")
             project_name = request.form.get("project_name")
             description = request.form.get("project_info")
-            print(description)
-            username = session.get("username")
+
+            # Generating bullet points
             input_for_propmpt = f"{project_name} : {description}"
             bullets_dict = generate_bullets(input_for_propmpt)
-            print(bullets_dict[project_name])
-            return "Hello"
+            bullets = bullets_dict[project_name]
+
+            #Adding to database
+            project = db.session.query(Projects).filter_by(username=username, projectname=project_name).first()
+            if project:
+                project.bulletpoints = json.dumps(bullets)
+
+            try:
+                db.session.commit()
+                flash("Bullet points successfully updated!", "success")
+            except Exception as e:
+                db.session.rollback()
+                flash("Error saving bullet points.", "error")
+                print("Error:", e)
+
+            return redirect(url_for("edit_project",name=project_name))
+            
 

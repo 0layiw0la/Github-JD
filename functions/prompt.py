@@ -53,13 +53,9 @@ def compare_jd(jd,projects):
                         output should look like this NO ADDITIONS (i inted to split as a list so NO ADDITIONS): project1_name_only,project2_name_only,project3_name_only"""
     
     try:
-        print("prompting")
         response = model.generate_content(COMPARISON_PROMPT)
         top_3 = response.text
-        print(top_3)
-        selection = str(top_3).split(',')
-        print("prompted")
-        
+        selection = str(top_3).split(',')        
 
         return selection
     except:
@@ -79,7 +75,6 @@ def generate_bullets(project_data):
     """
 
     try:
-        print("prompting")
         response = model.generate_content(PROMPT)
 
         # Extract dictionary content (everything between the first '{' and last '}')

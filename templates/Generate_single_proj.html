@@ -5,10 +5,10 @@
         <input type="hidden" name="project_name" value="{{ project_name }}">
         <h3 class="text-lg md:text-2xl font-semibold text-blue-800 mb-2">{{ project_name.replace("-", " ").upper() }}</h3>
         
-        <p>About</p>
-        <textarea name="project_info" class="w-full p-3 border rounded-md mt-2" rows="7" >{{ description }}</textarea>
+        <p><strong>About Project</strong></p>
+        <textarea name="project_info" class="w-full p-3 border rounded-md mt-2 text-sm md:text-base lg:text-lg" rows="7" >{{ description }}</textarea>
     
-        <button type="submit" class="btn btn-primary my-5 sm:mb-5 sm:mt-10 w-fit py-2 px-8 self-center text-md bg-blue-600 text-white hover:text-blue-800 rounded-lg hover:bg-white hover:border-[1px] hover:border-blue-600">Save</button>
+        <button type="submit" class="btn btn-primary my-5 sm:mb-5 sm:mt-10 w-fit py-2 px-8 self-center text-md bg-blue-600 text-white hover:text-blue-800 rounded-lg hover:bg-white hover:border-[1px] hover:border-blue-600">Generate</button>
     </form>
 </div>
 {%endblock%}
