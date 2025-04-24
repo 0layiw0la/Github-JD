@@ -240,7 +240,7 @@ def register_routes(app,db):
 
         # Fetch all projects for the user in a single query
         user_projects = db.session.query(Projects.projectname, Projects.description,Projects.bulletpoints).filter_by(username=username).all()
-        print(user_projects)
+        
         if not user_projects:
             flash("No projects found.", "info")
             return render_template('view.html', table=None)
@@ -297,9 +297,13 @@ def register_routes(app,db):
             bullets = request.form.getlist("bullets")  # Comes from multiple inputs with name="bullets"
 
             project = db.session.query(Projects).filter_by(username=username, projectname=project_name).first()
-
+            print(bullets)
+            final_bullets = []
+            for i in bullets:
+                if i != "":
+                    final_bullets.append(i)
             if project:
-                project.bulletpoints = json.dumps(bullets)
+                project.bulletpoints = json.dumps(final_bullets)
 
             try:
                 db.session.commit()
