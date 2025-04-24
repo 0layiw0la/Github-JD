@@ -73,10 +73,105 @@ def register_routes(app,db):
     
 
 
-    @app.route('/details', methods=['GET','POST'])
+    @app.route('/details', methods=['GET', 'POST'])
     def details():
+        if not session.get('username'):
+            flash('Please login first', 'error')
+            return redirect(url_for('login'))
+
+        user = User.query.filter_by(username=session['username']).first()
+
         if request.method == 'GET':
+            # Pre-populate form if user data exists
+            if user:
+                try:
+                    extracurriculars = json.loads(user.extracurriculars) if user.extracurriculars else {
+                        'activities': [],
+                        'descriptions': []
+                    }
+                    return render_template('details.html',
+                        fullname=user.fullname,
+                        email=user.email,
+                        linkedin=user.linkedin,
+                        github=user.github,
+                        school_name=user.school_name,
+                        course=user.course,
+                        duration=user.duration,
+                        programming_languages=user.programming_languages,
+                        libraries=user.libraries,
+                        tools=user.tools,
+                        extracurricular_activities=extracurriculars.get('activities', []),
+                        extracurriculars_about=extracurriculars.get('descriptions', [])
+                    )
+                except json.JSONDecodeError:
+                    # Handle corrupt JSON data
+                    print("Warning: Corrupt extracurriculars JSON data")
+                    return render_template('details.html')
             return render_template('details.html')
+
+        elif request.method == 'POST':
+            # Get form data for other fields
+            fullname = request.form.get('fullname')
+            email = request.form.get('email')
+            linkedin = request.form.get('linkedin')
+            github = request.form.get('github')
+            school_name = request.form.get('school_name')
+            course = request.form.get('course')
+            duration = request.form.get('duration')
+            programming_languages = request.form.get('programming_languages')
+            libraries = request.form.get('libraries')
+            tools = request.form.get('tools')
+
+            # Handle extracurricular activities with improved validation
+            activities = []
+            descriptions = []
+            
+            for i in range(4):
+                activity = request.form.get(f'extracurricular_activities[{i}]', '').strip()
+                description = request.form.get(f'extracurriculars_about[{i}]', '').strip()
+                
+                # Only add pairs where both activity and description are provided
+                if activity and description:
+                    activities.append(activity)
+                    descriptions.append(description)
+                # Handle case where only one field is filled
+                elif activity or description:
+                    flash(f'Activity {i+1} requires both name and description', 'warning')
+                    # You might want to preserve the form data here
+                    return redirect(url_for('details'))
+
+            # If no activities were added, store empty arrays
+            extracurriculars = json.dumps({
+                'activities': activities,
+                'descriptions': descriptions
+            }) if activities else json.dumps({'activities': [], 'descriptions': []})
+
+            if not user:
+                user = User(username=session['username'])
+                db.session.add(user)
+
+            # Update user details
+            try:
+                user.fullname = fullname
+                user.email = email
+                user.linkedin = linkedin
+                user.github = github
+                user.school_name = school_name
+                user.course = course
+                user.duration = duration
+                user.programming_languages = programming_languages
+                user.libraries = libraries
+                user.tools = tools
+                user.extracurriculars = extracurriculars
+
+                db.session.commit()
+                flash('Details updated successfully!', 'success')
+                return redirect(url_for('index'))
+            except Exception as e:
+                db.session.rollback()
+                flash('Error updating details. Please try again.', 'error')
+                print(f"Database error: {e}")
+                return redirect(url_for('details'))
         
         
     """ Allows users to add projects from GitHub by scraping data. """

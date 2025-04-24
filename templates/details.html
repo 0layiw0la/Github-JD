@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="text-right  m-[2vh] mb-[5vh]  font-bold">
+    <a class="border bg-white w-fit p-3 rounded-md sm:text-small" href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+</div>
 <div class="min-h-screen min-w-screen flex items-center justify-center">
     <form method="POST" class="flex flex-col gap-3 w-[80vw] max-w-3xl m-auto bg-white p-6 rounded-xl shadow-lg">
         
@@ -7,19 +10,19 @@
         <h3 class="text-lg md:text-2xl font-semibold text-blue-800 mb-4">Personal Info</h3>
 
         <label for="fullname">Full Name</label>
-        <input type="text" name="fullname" placeholder="John Doe" value="{{ fullname or '' }}"
+        <input required type="text" name="fullname" placeholder="John Doe" value="{{ fullname or '' }}"
                class="form-control p-2 border-b-2 text-sm md:text-lg">
 
         <label for="email">Email</label>
-        <input type="email" name="email" placeholder="abc@gmail.com" value="{{ email or '' }}"
+        <input required type="email" name="email" placeholder="abc@gmail.com" value="{{ email or '' }}"
                 class="form-control p-2 border-b-2 text-sm md:text-lg">
         
         <label for="linkedin">LinkedIn</label>
-        <input type="url" name="linkedin" placeholder="LinkedIn URL" value="{{ linkedin or '' }}"
+        <input required type="url" name="linkedin" placeholder="LinkedIn URL" value="{{ linkedin or '' }}"
                 class="form-control p-2 border-b-2 text-sm md:text-lg">
 
         <label for="github">GitHub</label>
-        <input type="url" name="github" placeholder="GitHub URL" value="{{ github or '' }}"
+        <input required type="url" name="github" placeholder="GitHub URL" value="{{ github or '' }}"
                 class="form-control p-2 border-b-2 text-sm md:text-lg">
                 
                 
@@ -27,30 +30,30 @@
         <h3 class="text-lg md:text-2xl font-semibold text-blue-800 mt-6 mb-4">Education</h3>
 
         <label for="school_name">School Name</label>
-        <input type="text" name="school_name" placeholder="University of Lagos" value="{{ school_name or '' }}"
+        <input required type="text" name="school_name" placeholder="University of Lagos" value="{{ school_name or '' }}"
                class="form-control p-2 border-b-2 text-sm md:text-lg">
 
         <label for="course">Course</label>
-        <input type="text" name="course" placeholder="Computer Engineering" value="{{ course or '' }}"
+        <input required type="text" name="course" placeholder="Computer Engineering" value="{{ course or '' }}"
                class="form-control p-2 border-b-2 text-sm md:text-lg">
 
         <label for="duration">Duration</label>
-        <input type="text" name="duration" placeholder="2021 - 2025" value="{{ duration or '' }}"
+        <input required type="text" name="duration" placeholder="2021 - 2025" value="{{ duration or '' }}"
                class="form-control p-2 border-b-2 text-sm md:text-lg">
 
         <!-- SKILLS -->
         <h3 class="text-lg md:text-2xl font-semibold text-blue-800 mt-6 mb-4">Skills</h3>
 
         <label for="programming_languages">Programming Languages</label>
-        <input type="text" name="programming_languages" placeholder="Python, C++, JavaScript" value="{{ programming_languages or '' }}"
+        <input required type="text" name="programming_languages" placeholder="Python, C++, JavaScript" value="{{ programming_languages or '' }}"
                class="form-control p-2 border-b-2 text-sm md:text-lg">
 
         <label for="libraries">Libraries/Frameworks</label>
-        <input type="text" name="libraries" placeholder="pandas, React, TensorFlow" value="{{ libraries or '' }}"
+        <input required type="text" name="libraries" placeholder="pandas, React, TensorFlow" value="{{ libraries or '' }}"
                class="form-control p-2 border-b-2 text-sm md:text-lg">
 
         <label for="tools">Tools</label>
-        <input type="text" name="tools" placeholder="VSCode, Git, Figma" value="{{ tools or '' }}"
+        <input required type="text" name="tools" placeholder="VSCode, Git, Figma" value="{{ tools or '' }}"
                class="form-control p-2 border-b-2 text-sm md:text-lg">
 
         
