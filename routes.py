@@ -316,11 +316,21 @@ def register_routes(app,db):
             return redirect(url_for("view"))
 
 
-    @app.route('/add_bullet')
+    @app.route('/add_bullet',methods = ['POST','GET'])
     def add_bullet():
-        project_name = request.args.get('name')
-        username = session["username"]
-        description_tup = db.session.query(Projects.description).filter(Projects.username == username, Projects.projectname == project_name).first()
-        description = description_tup[0]
-        print(description)
-        return render_template("Generate_single_proj.html",project_name=project_name,description=description)
+        if request.method == 'GET':
+            project_name = request.args.get('name')
+            username = session["username"]
+            description_tup = db.session.query(Projects.description).filter(Projects.username == username, Projects.projectname == project_name).first()
+            description = description_tup[0]
+            return render_template("Generate_single_proj.html",project_name=project_name,description=description)
+        elif request.method == 'POST':
+            project_name = request.form.get("project_name")
+            description = request.form.get("project_info")
+            print(description)
+            username = session.get("username")
+            input_for_propmpt = f"{project_name} : {description}"
+            bullets_dict = generate_bullets(input_for_propmpt)
+            print(bullets_dict[project_name])
+            return "Hello"
+
