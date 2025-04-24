@@ -320,5 +320,5 @@ def register_routes(app,db):
     def add_bullet():
         project_name = request.args.get('name')
         username = session["username"]
-        bullets = db.session.query(Projects.bulletpoints).filter(Projects.username == username, Projects.projectname == project_name).first()
-        return (project_name,bullets)
+        description = db.session.query(Projects.description).filter(Projects.username == username, Projects.projectname == project_name).first()
+        return (project_name,description)
