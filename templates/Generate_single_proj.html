@@ -1,4 +1,14 @@
 {% extends "base.html" %}
 {%block content %}
-
+<div class="min-h-screen min-w-screen flex items-center justify-center">
+    <form method="POST" class="flex flex-col gap-3 w-[80vw] m-auto bg-white p-6 rounded-xl shadow-lg">
+        <input type="hidden" name="project_name" value="{{ project_name }}">
+        <h3 class="text-lg md:text-2xl font-semibold text-blue-800 mb-2">{{ project_name.replace("-", " ").upper() }}</h3>
+        
+        <p>About</p>
+        <textarea name="project_info" class="w-full p-3 border rounded-md mt-2" rows="3" value="{{ description }}"></textarea>
+    
+        <button type="submit" class="btn btn-primary my-5 sm:mb-5 sm:mt-10 w-fit py-2 px-8 self-center text-md bg-blue-600 text-white hover:text-blue-800 rounded-lg hover:bg-white hover:border-[1px] hover:border-blue-600">Save</button>
+    </form>
+</div>
 {%endblock%}
