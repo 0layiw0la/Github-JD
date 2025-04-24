@@ -10,6 +10,19 @@
         <input type="text" name="fullname" placeholder="John Doe" value="{{ fullname or '' }}"
                class="form-control p-2 border-b-2 text-sm md:text-lg">
 
+        <label for="email">Email</label>
+        <input type="email" name="email" placeholder="abc@gmail.com" value="{{ email or '' }}"
+                class="form-control p-2 border-b-2 text-sm md:text-lg">
+        
+        <label for="linkedin">LinkedIn</label>
+        <input type="url" name="linkedin" placeholder="LinkedIn URL" value="{{ linkedin or '' }}"
+                class="form-control p-2 border-b-2 text-sm md:text-lg">
+
+        <label for="github">GitHub</label>
+        <input type="url" name="github" placeholder="GitHub URL" value="{{ github or '' }}"
+                class="form-control p-2 border-b-2 text-sm md:text-lg">
+                
+                
         <!-- EDUCATION -->
         <h3 class="text-lg md:text-2xl font-semibold text-blue-800 mt-6 mb-4">Education</h3>
 
@@ -40,12 +53,42 @@
         <input type="text" name="tools" placeholder="VSCode, Git, Figma" value="{{ tools or '' }}"
                class="form-control p-2 border-b-2 text-sm md:text-lg">
 
+        
         <!-- EXTRACURRICULARS -->
         <h3 class="text-lg md:text-2xl font-semibold text-blue-800 mt-6 mb-4">Extracurriculars</h3>
 
-        <label for="extracurriculars">Extracurricular Activities</label>
-        <textarea name="extracurriculars" rows="4" placeholder="e.g. IEEE UNILAG Deputy Lead, GDSC Community Manager"
-                  class="form-control p-2 border-2 rounded text-sm md:text-lg">{{ extracurriculars or '' }}</textarea>
+        <!-- Activity 1 -->
+        <label for="extracurricular_activities[0]">Activity 1</label>
+        <input type="text" name="extracurricular_activities[0]" placeholder="Activity name or Role"
+                value="{{ extracurricular_activities[0] if extracurricular_activities else '' }}"
+                class="form-control p-2 border-b-2 text-sm md:text-lg w-[50%]">
+        <textarea name="extracurriculars_about[0]" placeholder="Describe your role or achievements"
+                    class="form-control p-2 border-b-2 text-sm md:text-lg w-full">{{ extracurriculars_about[0] if extracurriculars_about else '' }}</textarea>
+        
+        <!-- Activity 2 -->
+        <label for="extracurricular_activities[1]">Activity 2</label>
+        <input type="text" name="extracurricular_activities[1]" placeholder="Activity name or Role"
+                value="{{ extracurricular_activities[1] if extracurricular_activities else '' }}"
+                class="form-control p-2 border-b-2 text-sm md:text-lg w-[50%]">
+        <textarea name="extracurriculars_about[1]" placeholder="Describe your role or achievements"
+                    class="form-control p-2 border-b-2 text-sm md:text-lg w-full">{{ extracurriculars_about[1] if extracurriculars_about else '' }}</textarea>
+
+        <!-- Activity 3 -->
+        <label for="extracurricular_activities[2]">Activity 3</label>
+        <input type="text" name="extracurricular_activities[2]" placeholder="Activity name or Role"
+                value="{{ extracurricular_activities[2] if extracurricular_activities else '' }}"
+                class="form-control p-2 border-b-2 text-sm md:text-lg w-[50%]">
+        <textarea name="extracurriculars_about[2]" placeholder="Describe your role or achievements"
+                    class="form-control p-2 border-b-2 text-sm md:text-lg w-full">{{ extracurriculars_about[2] if extracurriculars_about else '' }}</textarea>
+
+        <!-- Activity 4 -->
+        <label for="extracurricular_activities[3]">Activity 4</label>
+        <input type="text" name="extracurricular_activities[3]" placeholder="Activity name or Role"
+                value="{{ extracurricular_activities[3] if extracurricular_activities else '' }}"
+                class="form-control p-2 border-b-2 text-sm md:text-lg w-[50%]">
+        <textarea name="extracurriculars_about[3]" placeholder="Describe your role or achievements"
+                    class="form-control p-2 border-b-2 text-sm md:text-lg w-full">{{ extracurriculars_about[3] if extracurriculars_about else '' }}</textarea>
+               
 
         <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg mt-4 self-end hover:bg-blue-700">
             Save Details
