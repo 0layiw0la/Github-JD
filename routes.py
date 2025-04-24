@@ -320,5 +320,7 @@ def register_routes(app,db):
     def add_bullet():
         project_name = request.args.get('name')
         username = session["username"]
-        description = db.session.query(Projects.description).filter(Projects.username == username, Projects.projectname == project_name).first()
-        return (project_name,description)
+        description_tup = db.session.query(Projects.description).filter(Projects.username == username, Projects.projectname == project_name).first()
+        description = description_tup[0]
+        print(description)
+        return render_template("Generate_single_proj.html",project_name=project_name,description=description)
