@@ -1,9 +1,9 @@
-from flask import render_template,request,redirect,url_for,flash,session,jsonify
+from flask import render_template,request,redirect,url_for,flash,session,jsonify,send_file
 from sqlalchemy.exc import IntegrityError
 from models import User, Projects
 from functions.Scraping import ScrapeProjects
 from functions.prompt import compare_jd,load_data,get_descriptions,generate_bullets
-from functions.upload import allowed_file,process_pdf,process_text,UPLOAD_FOLDER
+from functions.upload import allowed_file,process_pdf,process_text,UPLOAD_FOLDER,build_profile_docx
 import requests
 import pandas as pd 
 import os
@@ -311,7 +311,7 @@ def register_routes(app,db):
             user_points = db.session.query(Projects.bulletpoints).filter_by(username=session.get("username"),projectname=project_name).first()
             
             print(user_points)
-            if user_points:
+            if user_points[0]:
                 print("yayy",project_name)
                 bullets = json.loads(user_points[0])
                 existing_bullets[project_name] = bullets
@@ -323,7 +323,9 @@ def register_routes(app,db):
         # If all projects have bullets, return them directly
         if not projects_needing_bullets:
             flash("Retrieved all bullet points from database.", "info")
-            return render_template("bullet_results.html", bullets=existing_bullets)
+            user = User.query.filter_by(username=session.get("username")).first()
+            print(user,'hiiiiiiiiiiiiiiiiiiiiii')
+            return render_template("bullet_results.html", bullets=existing_bullets, user=user)
         
         # If some projects need bullets, pass only those to comparison results
         descriptions = get_descriptions(projects_needing_bullets)
@@ -333,6 +335,41 @@ def register_routes(app,db):
             'compare_results.html', 
             projects=projects_needing_bullets,
             existing_bullets=existing_bullets
+        )
+    
+    @app.route('/resume_download', methods=['POST'])
+    def resume_download():
+        # fetch current user
+        user = User.query.filter_by(username=session.get("username")).first()
+        if not user:
+            flash("Please login first", "error")
+            return redirect(url_for('login'))
+
+        # get list of project names from the form
+        project_names = request.form.getlist('resume_projects')
+
+        # load their bulletpoints
+        bullets = {}
+        for name in project_names:
+            proj = Projects.query.filter_by(
+                username=user.username,
+                projectname=name
+            ).first()
+            if proj and proj.bulletpoints:
+                try:
+                    bullets[name] = json.loads(proj.bulletpoints)
+                except json.JSONDecodeError:
+                    continue
+
+        # build the .docx
+        docx_io = build_profile_docx(user, bullets)
+
+        filename = f"{(user.fullname or user.username).replace(' ', '_')}.docx"
+        return send_file(
+            docx_io,
+            mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            as_attachment=True,
+            download_name=filename
         )
     
 
@@ -403,8 +440,11 @@ def register_routes(app,db):
         
         # Combine new and existing bullets
         all_bullets = {**new_bullet_results, **existing_project_bullets} if project_names else existing_project_bullets
-
-        return render_template("bullet_results.html", bullets=all_bullets)
+        user = User.query.filter_by(username=session.get("username")).first()
+        print(user,'hiiiiiiiiiiiiiiiiiiiiii')
+        return render_template("bullet_results.html", 
+                               bullets=all_bullets,
+                               user=user)
 
 
 
