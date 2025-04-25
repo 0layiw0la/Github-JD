@@ -4,9 +4,16 @@
   <h2 class="text-3xl font-semibold mb-[10vh] pt-[5vh] text-center">Comparison Results</h2>
 
   <div class="w-[60vw] md:w-[50vw] m-auto bg-white p-8 rounded-xl shadow-lg text-center">
-    <h3 class="text-xl font-semibold mb-5">Top 3 Matching Projects</h3>
-
     <form action="{{ url_for('bullet') }}" method="POST" class="flex flex-col gap-5">
+      <!-- Hidden inputs for existing bullet points -->
+      {% if existing_bullets %}
+        {% for project_name in existing_bullets.keys() %}
+          <input type="hidden" name="existing_project_{{ loop.index }}" value="{{ project_name }}">
+        {% endfor %}
+      {% endif %}
+
+      <!-- Projects needing bullet points -->
+      {% if projects %}
       <div class="text-left">
         {% for project in projects %}
           <div class="mb-6">
@@ -18,8 +25,9 @@
       </div>
 
       <button type="submit" class="bg-[#020091] text-white py-3 rounded-md hover:bg-black text-lg">
-        Generate Bullet Points
+        Generate All Bullet Points
       </button>
+      {% endif %}
     </form>
   </div>
 {% endblock %}

@@ -4,7 +4,7 @@
   <h2 class="text-3xl font-semibold mb-[7vh] sm:pt-[5vh] pt-[3vh]  text-center text-white">Compare Job Description</h2>
 
   <div class="w-[80vw] md:w-[60vw] m-auto bg-white p-8 rounded-xl shadow-lg">
-    <form action="{{ url_for('compare') }}" method="POST" enctype="multipart/form-data" class="flex flex-col">
+    <form action="{{ url_for(route) }}" method="POST" enctype="multipart/form-data" class="flex flex-col">
       
       <textarea name="jd_text" id="jd_text" class="w-full p-4 mb-5 border rounded-md h-[50vh]" rows="6" placeholder="Type or paste job description here..."></textarea>
       <label for="jd_file" class="font-semibold mb-2 text-sm">Or Upload PDF:</label>

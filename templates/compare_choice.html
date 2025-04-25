@@ -5,18 +5,18 @@
 
 <div class="flex flex-col sm:flex-row gap-6 justify-center items-center h-[50vh]">
   <!-- Manual Comparison Card -->
-  <a href="{{ url_for('manual_compare') }}" class="w-[80vw] sm:w-[300px] bg-white p-6 rounded-xl shadow-lg hover:scale-105 transition-transform">
+  <a href="{{ url_for('manual_compare') }}" class="w-[80vw] h-[40vh] sm:w-[300px] bg-white p-6 rounded-xl shadow-lg hover:scale-105 transition-transform">
     <div class="text-center">
-      <h3 class="text-xl font-semibold text-blue-800 mb-4">Manual Comparison</h3>
-      <p class="text-gray-600">Compare job descriptions and manually select relevant projects for bullet point generation.</p>
+      <h3 class="text-xl font-semibold text-blue-800 mt-3 mb-8">Manual Resume Generation</h3>
+      <p class="text-gray-600">Manually select relevant projects for resume generation. </p>
     </div>
   </a>
 
   <!-- Automated Comparison Card -->
-  <a href="{{ url_for('automated_compare') }}" class="w-[80vw] sm:w-[300px] bg-white p-6 rounded-xl shadow-lg hover:scale-105 transition-transform">
+  <a href="{{ url_for('automated_compare') }}" class="w-[80vw] h-[40vh] sm:w-[300px] bg-white p-6 rounded-xl shadow-lg hover:scale-105 transition-transform">
     <div class="text-center">
-      <h3 class="text-xl font-semibold text-blue-800 mb-4">Automated Comparison</h3>
-      <p class="text-gray-600">Automatically generate bullet points from the best matching projects.</p>
+      <h3 class="text-xl font-semibold text-blue-800 mt-3 mb-8">AI Resume Generation</h3>
+      <p class="text-gray-600">AI generates a resume with projects that are best for the role.</p>
     </div>
   </a>
 </div>

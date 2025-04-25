@@ -242,7 +242,7 @@ def register_routes(app,db):
             return redirect(url_for('login'))
 
         if request.method == 'GET':
-            return render_template('compare.html')
+            return render_template('compare.html',route='manual_compare')
 
         # Handle file upload and text input
         jd_text = ""
@@ -270,14 +270,15 @@ def register_routes(app,db):
 
     @app.route('/compare/automated', methods=['GET', 'POST'])
     def automated_compare():
-        """New automated comparison route"""
+        """Automated comparison route with database check"""
         if not session.get('username'):
             flash('Please login first', 'error')
             return redirect(url_for('login'))
 
         if request.method == 'GET':
-            return render_template('compare.html')  # Reuse the same form template
+            return render_template('compare.html', route='automated_compare')
 
+        # Handle JD input
         jd_text = ""
         if 'jd_file' in request.files:
             file = request.files['jd_file']
@@ -301,86 +302,109 @@ def register_routes(app,db):
         # Get top projects
         top_projects = compare_jd(jd_text, projects)
         
-        # Get descriptions for top projects
-        descriptions = get_descriptions(top_projects)
+        # Separate projects that need generation from those with existing bullets
+        existing_bullets = {}
+        projects_needing_bullets = []
         
-        # Generate bullets directly
-        bullet_results = generate_bullets(descriptions)
+        for project_name in top_projects:
+            project_name = project_name.strip()
+            user_points = db.session.query(Projects.bulletpoints).filter_by(username=session.get("username"),projectname=project_name).first()
+            
+            print(user_points)
+            if user_points:
+                print("yayy",project_name)
+                bullets = json.loads(user_points[0])
+                existing_bullets[project_name] = bullets
+            else:
+                print("nayy none",project_name)
+                projects_needing_bullets.append(project_name)
 
-        # Save bullets to database
-        for project_name, bullets in bullet_results.items():
-            project = Projects.query.filter_by(
-                username=session.get("username"),
-                projectname=project_name
-            ).first()
-            if project:
-                project.bulletpoints = json.dumps(bullets)
 
-        try:
-            db.session.commit()
-            flash("Bullet points automatically generated and saved!", "success")
-        except Exception as e:
-            db.session.rollback()
-            flash("Error saving bullet points.", "error")
-            print(f"Database error: {e}")
-
-        return render_template("bullet_results.html", bullets=bullet_results)
+        # If all projects have bullets, return them directly
+        if not projects_needing_bullets:
+            flash("Retrieved all bullet points from database.", "info")
+            return render_template("bullet_results.html", bullets=existing_bullets)
+        
+        # If some projects need bullets, pass only those to comparison results
+        descriptions = get_descriptions(projects_needing_bullets)
+        
+        # Pass both the projects needing bullets and existing bullets
+        return render_template(
+            'compare_results.html', 
+            projects=projects_needing_bullets,
+            existing_bullets=existing_bullets
+        )
     
 
     @app.route("/bullet", methods=["POST"])
     def bullet():
-
         """ 
-        Generates bullet points for project descriptions based on user input.
-        Users select projects and provide additional input to refine bullet points.
+        Generates bullet points for new projects and combines with existing ones
         """
-         
         project_names = []
         user_inputs = {}
+        existing_project_bullets = {}
 
-        # Extract project names and user inputs dynamically
+        # Extract project names, user inputs, and existing bullets
         for key, value in request.form.items():
             if key.startswith("project_name_"):
                 index = key.split("_")[-1]
-                project_names.append(value.strip())  # Ensure clean project names
+                project_names.append(value.strip())
             elif key.startswith("project_info_"):
                 index = key.split("_")[-1]
-                user_inputs[index] = value.strip()  # Strip user input to remove unnecessary spaces
+                user_inputs[index] = value.strip()
+            elif key.startswith("existing_project_"):
+                # Get project name and its bullets from hidden inputs
+                project_name = value.strip()
+                project = Projects.query.filter_by(
+                    username=session.get("username"),
+                    projectname=project_name
+                ).first()
+                if project and project.bulletpoints:
+                    try:
+                        existing_project_bullets[project_name] = json.loads(project.bulletpoints)
+                    except json.JSONDecodeError:
+                        continue
 
-        if not project_names:
+        if not project_names and not existing_project_bullets:
             flash("No projects selected.", "error")
             return redirect(url_for("compare"))
 
-        # Fetch and clean descriptions
-        descriptions = get_descriptions(project_names)
+        # Generate new bullets for projects needing them
+        if project_names:
+            # Fetch and clean descriptions
+            descriptions = get_descriptions(project_names)
 
-        # Merge descriptions with user input
-        combined_inputs = {
-            name: f"{descriptions.get(name, '').strip()} {user_inputs.get(str(i + 1), '').strip()}".strip()
-            for i, name in enumerate(project_names)
-        }
+            # Merge descriptions with user input
+            combined_inputs = {
+                name: f"{descriptions.get(name, '').strip()} {user_inputs.get(str(i + 1), '').strip()}".strip()
+                for i, name in enumerate(project_names)
+            }
 
-        # Call function to generate bullets
-        bullet_results = generate_bullets(combined_inputs)
+            # Generate new bullets
+            new_bullet_results = generate_bullets(combined_inputs)
 
-        for project_name, bullets in bullet_results.items():
-            project = Projects.query.filter_by(
-                username=session.get("username"),  # Ensure correct user
-                projectname=project_name
-            ).first()
+            # Save new bullets to database
+            for project_name, bullets in new_bullet_results.items():
+                project = Projects.query.filter_by(
+                    username=session.get("username"),
+                    projectname=project_name
+                ).first()
+                if project:
+                    project.bulletpoints = json.dumps(bullets)
 
-            if project:
-                project.bulletpoints = json.dumps(bullets)
+            try:
+                db.session.commit()
+                print("Bullet points successfully generated and saved!", "success")
+            except Exception as e:
+                db.session.rollback()
+                print("Error saving bullet points to database.", "error")
+                print(f"Database error: {e}")
+        
+        # Combine new and existing bullets
+        all_bullets = {**new_bullet_results, **existing_project_bullets} if project_names else existing_project_bullets
 
-        try:
-            db.session.commit()
-            flash("Bullet points successfully saved!", "success")
-        except Exception as e:
-            db.session.rollback()
-            flash("Error saving bullet points to database.", "error")
-            print(f"Database error: {e}")
-
-        return render_template("bullet_results.html", bullets=bullet_results)
+        return render_template("bullet_results.html", bullets=all_bullets)
 
 
 
