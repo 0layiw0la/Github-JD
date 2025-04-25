@@ -226,17 +226,25 @@ def register_routes(app,db):
 
 
         
-    @app.route('/compare', methods=['GET','POST'])
+    @app.route('/compare', methods=['GET'])
     def compare():
+        """Initial comparison method selection page"""
+        if not session.get('username'):
+            flash('Please login first', 'error')
+            return redirect(url_for('login'))
+        return render_template('compare_choice.html')
 
-        """ 
-        Compares job descriptions against stored project data and returns relevant projects.
-        Users can upload a job description file or enter text manually.
-        """
+    @app.route('/compare/manual', methods=['GET', 'POST'])
+    def manual_compare():
+        """Original compare functionality"""
+        if not session.get('username'):
+            flash('Please login first', 'error')
+            return redirect(url_for('login'))
 
-        # Check if a job description file was uploaded
         if request.method == 'GET':
             return render_template('compare.html')
+
+        # Handle file upload and text input
         jd_text = ""
         if 'jd_file' in request.files:
             file = request.files['jd_file']
@@ -245,26 +253,78 @@ def register_routes(app,db):
                 file.save(file_path)
                 jd_text = process_pdf(file_path)
 
-        # If no file was provided, try extracting text from form input
         if not jd_text:
             jd_text = process_text(request.form.get('jd_text', ''))
 
-        # Ensure a job description was provided
         if not jd_text:
             flash("Please provide a job description.", "warning")
-            return redirect(url_for('compare'))
+            return redirect(url_for('manual_compare'))
 
-        projects = load_data() # Load stored project data
-        
-        # If no projects are found in the database
+        projects = load_data()
         if not projects:
             flash("No projects found.", "info")
-            return redirect(url_for('compare'))
+            return redirect(url_for('manual_compare'))
 
-         # Compare job description with stored projects
+        top_projects = compare_jd(jd_text, projects)
+        return render_template('compare_results.html', projects=top_projects)
+
+    @app.route('/compare/automated', methods=['GET', 'POST'])
+    def automated_compare():
+        """New automated comparison route"""
+        if not session.get('username'):
+            flash('Please login first', 'error')
+            return redirect(url_for('login'))
+
+        if request.method == 'GET':
+            return render_template('compare.html')  # Reuse the same form template
+
+        jd_text = ""
+        if 'jd_file' in request.files:
+            file = request.files['jd_file']
+            if file and allowed_file(file.filename):
+                file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+                file.save(file_path)
+                jd_text = process_pdf(file_path)
+
+        if not jd_text:
+            jd_text = process_text(request.form.get('jd_text', ''))
+
+        if not jd_text:
+            flash("Please provide a job description.", "warning")
+            return redirect(url_for('automated_compare'))
+
+        projects = load_data()
+        if not projects:
+            flash("No projects found.", "info")
+            return redirect(url_for('automated_compare'))
+
+        # Get top projects
         top_projects = compare_jd(jd_text, projects)
         
-        return render_template('compare_results.html', projects=top_projects)
+        # Get descriptions for top projects
+        descriptions = get_descriptions(top_projects)
+        
+        # Generate bullets directly
+        bullet_results = generate_bullets(descriptions)
+
+        # Save bullets to database
+        for project_name, bullets in bullet_results.items():
+            project = Projects.query.filter_by(
+                username=session.get("username"),
+                projectname=project_name
+            ).first()
+            if project:
+                project.bulletpoints = json.dumps(bullets)
+
+        try:
+            db.session.commit()
+            flash("Bullet points automatically generated and saved!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("Error saving bullet points.", "error")
+            print(f"Database error: {e}")
+
+        return render_template("bullet_results.html", bullets=bullet_results)
     
 
     @app.route("/bullet", methods=["POST"])
