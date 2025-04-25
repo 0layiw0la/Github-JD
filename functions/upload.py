@@ -158,6 +158,20 @@ def build_profile_docx(user, bullets):
     doc.add_paragraph(f"Frameworks & Tools: {user.libraries or 'N/A'}", style='ProfileBody').runs[0].bold = True
     doc.add_paragraph(f"Machine Learning: {user.tools or 'N/A'}", style='ProfileBody').runs[0].bold = True
 
+    #Education 
+    edu_p = doc.add_paragraph("EDUCATION", style='ProfileHeader')
+    edu_p.paragraph_format.space_after = Pt(0)  
+    insert_horizontal_line(doc)
+
+    paragraph = doc.add_paragraph()
+    run1 = paragraph.add_run(f"{user.school_name}").bold = True
+    paragraph.add_run('                                   ' + (' '*97))
+    run2 = paragraph.add_run(f"{user.duration or 'N/A'}").bold = True
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
+    doc.add_paragraph(f"{user.course or 'N/A'}", style='ProfileBody')
+
+
     # Projects
     proj_p = doc.add_paragraph("PROJECTS", style='ProfileHeader')
     proj_p.paragraph_format.space_after = Pt(0)
