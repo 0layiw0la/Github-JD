@@ -5,6 +5,7 @@ from docx.shared import Pt, RGBColor, Inches
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_ALIGN_VERTICAL
 
 
 def build_profile_docx(user, bullets):
@@ -16,8 +17,8 @@ def build_profile_docx(user, bullets):
     doc = Document()
     styles = doc.styles
     section = doc.sections[0]
-    section.top_margin = Inches(0.5)
-    section.bottom_margin = Inches(0.5)
+    section.top_margin = Inches(0.35)
+    section.bottom_margin = Inches(0.35)
     section.left_margin = Inches(0.5)
     section.right_margin = Inches(0.5)
 
@@ -56,14 +57,53 @@ def build_profile_docx(user, bullets):
     body_font.name = 'Arial'
     body_font.size = Pt(9)
 
-
     def insert_horizontal_line(doc):
-        """Insert a horizontal line using dashes"""
-        line = doc.add_paragraph()
-        run = line.add_run('------------------------------------------------------------------------------------------------------------------------------------'+('-'*15))
-        line.paragraph_format.space_after = Pt(0)
-        line.paragraph_format.space_before = Pt(0)
+        # create a one-cell table
+        table = doc.add_table(rows=1, cols=1)
+        table.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        table.allow_autofit = True
+        cell = table.cell(0, 0)
 
+        # add bottom border
+        tc_pr = cell._tc.get_or_add_tcPr()
+        borders = OxmlElement('w:tcBorders')
+        bottom = OxmlElement('w:bottom')
+        bottom.set(qn('w:val'), 'single')
+        bottom.set(qn('w:sz'), '8')
+        bottom.set(qn('w:space'), '0')
+        bottom.set(qn('w:color'), '000000')
+        borders.append(bottom)
+        tc_pr.append(borders)
+
+        # ensure there's a run with a non-breaking space
+        para = cell.paragraphs[0]
+        run = para.add_run('\u00A0')          # NBSP “text”
+        run.font.size = Pt(3)                # force 3 pt
+        para.paragraph_format.space_before = Pt(0)
+        para.paragraph_format.space_after = Pt(0)
+        para.paragraph_format.line_spacing = 1
+        cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+        # collapse the row height
+        table.rows[0].height = Pt(2)         # try 2 pt if 0 doesn’t work
+
+        # zero out all cell margins
+        tbl = table._tbl
+        tblPr = tbl.tblPr
+        tblCellMar = OxmlElement('w:tblCellMar')
+        for side in ('top', 'left', 'bottom', 'right'):
+            mar = OxmlElement(f'w:{side}')
+            mar.set(qn('w:w'), '0')
+            mar.set(qn('w:type'), 'dxa')
+            tblCellMar.append(mar)
+        tblPr.append(tblCellMar)
+
+        # follow with a tiny spacer paragraph
+        para2 = doc.add_paragraph('\u00A0')
+        r2 = para2.runs[0]
+        r2.font.size = Pt(3)
+        para2.paragraph_format.space_before = Pt(0)
+        para2.paragraph_format.space_after = Pt(1)
 
     def add_hyperlink(paragraph, url, text):
         """
@@ -92,13 +132,15 @@ def build_profile_docx(user, bullets):
     # Title centered
     title_p = doc.add_paragraph(user.fullname or "Full Name Not Set", style='ProfileTitle')
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_p.paragraph_format.line_spacing = 1.0 
     title_p.paragraph_format.space_after = Pt(4)
 
     # Contact line centered with hyperlinks
     contact_p = doc.add_paragraph(style='ProfileContact')
     contact_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    contact_p.paragraph_format.line_spacing = 1.0
     contact_p.paragraph_format.space_before = Pt(0)
-    contact_p.paragraph_format.space_after = Pt(0)
+    contact_p.paragraph_format.space_after = Pt(4)
     
 
     parts = []

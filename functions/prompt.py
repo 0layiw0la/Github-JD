@@ -70,7 +70,7 @@ def generate_bullets(project_data):
 
     OUTPUT_FORMAT = "{projectname:[point1, point2, point3, point4], projectname:[point1, point2, ...]}"
     PROMPT = f"""
-        Generate up to four STAR-format bullet points per project in {project_data}, using strong action verbs and concise resume-style phrasing. Output strictly in this format:
+        Generate up to three STAR-format bullet points per project in {project_data}, using strong action verbs and concise resume-style phrasing. Output strictly in this format:
         ({OUTPUT_FORMAT}).
     """
 
