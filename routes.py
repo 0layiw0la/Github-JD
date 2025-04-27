@@ -3,7 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from models import User, Projects
 from functions.Scraping import ScrapeProjects
 from functions.prompt import compare_jd,load_data,get_descriptions,generate_bullets
-from functions.upload import allowed_file,process_pdf,process_text,UPLOAD_FOLDER,build_profile_docx
+from functions.upload import allowed_file,process_pdf,process_text,UPLOAD_FOLDER
+from functions.Resume_docx import build_profile_docx
 import requests
 import pandas as pd 
 import os
@@ -61,18 +62,15 @@ def register_routes(app,db):
                 return redirect(url_for('login'))  # Redirect back to login
 
 
-
     @app.route('/')
     def index():
         username = session.get('username')  # Retrieve username from session
         if not username:
             return redirect(url_for('signup'))  # Redirect to signup if not logged in
 
-
         return render_template('index.html', welcome=username)  
     
-
-
+    """ For Users to fill in personal details needed in the resume """
     @app.route('/details', methods=['GET', 'POST'])
     def details():
         if not session.get('username'):
@@ -80,7 +78,6 @@ def register_routes(app,db):
             return redirect(url_for('login'))
 
         user = User.query.filter_by(username=session['username']).first()
-
         if request.method == 'GET':
             # Pre-populate form if user data exists
             if user:
@@ -225,49 +222,89 @@ def register_routes(app,db):
             return redirect(url_for('add'))  # Stay on `/add` if an error occurs
 
 
-        
+    """ Really more of a generate route. It loads the page where the user choses
+    if they wan AI generated resume completely or choice in what projects are used."""
     @app.route('/compare', methods=['GET'])
     def compare():
-        """Initial comparison method selection page"""
         if not session.get('username'):
             flash('Please login first', 'error')
             return redirect(url_for('login'))
+        user = User.query.filter_by(username=session.get("username")).first()
+        if not user.fullname:
+            flash('Please fill in personal details first')
+            return render_template('details.html')
         return render_template('compare_choice.html')
+
 
     @app.route('/compare/manual', methods=['GET', 'POST'])
     def manual_compare():
-        """Original compare functionality"""
+        """Shows all projects for manual selection and handles form submission"""
         if not session.get('username'):
             flash('Please login first', 'error')
             return redirect(url_for('login'))
 
+        username = session.get('username')
+
         if request.method == 'GET':
-            return render_template('compare.html',route='manual_compare')
+            # Get all user's projects
+            user_projects = Projects.query.filter_by(username=username).all()
+            
+            if not user_projects:
+                flash("No projects found.", "info")
+                return redirect(url_for('index'))
 
-        # Handle file upload and text input
-        jd_text = ""
-        if 'jd_file' in request.files:
-            file = request.files['jd_file']
-            if file and allowed_file(file.filename):
-                file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-                file.save(file_path)
-                jd_text = process_pdf(file_path)
+            # Format projects for template showing which have existing bullets
+            formatted_projects = []
+            for project in user_projects:
+                formatted_projects.append({
+                    "name": project.projectname,
+                    "description": project.description or "No description provided",
+                    "has_bullets": bool(project.bulletpoints)
+                })
 
-        if not jd_text:
-            jd_text = process_text(request.form.get('jd_text', ''))
+            return render_template('manual_results.html', projects=formatted_projects)
 
-        if not jd_text:
-            flash("Please provide a job description.", "warning")
-            return redirect(url_for('manual_compare'))
+        elif request.method == 'POST':
+            # Get selected project names
+            selected_projects = request.form.getlist('project_names')
+            
+            if not selected_projects:
+                flash("Please select at least one project.", "warning")
+                return redirect(url_for('manual_compare'))
 
-        projects = load_data()
-        if not projects:
-            flash("No projects found.", "info")
-            return redirect(url_for('manual_compare'))
+            # Check if any selected projects need bullet generation
+            existing_bullets = {}
+            projects_needing_bullets = []
+            
+            for project_name in selected_projects:
+                project = Projects.query.filter_by(
+                    username=username,
+                    projectname=project_name.strip()
+                ).first()
+                
+                if project and project.bulletpoints:
+                    try:
+                        bullets = json.loads(project.bulletpoints)
+                        existing_bullets[project_name] = bullets
+                    except json.JSONDecodeError:
+                        projects_needing_bullets.append(project_name)
+                else:
+                    projects_needing_bullets.append(project_name)
 
-        top_projects = compare_jd(jd_text, projects)
-        return render_template('compare_results.html', projects=top_projects)
+            # If all selected projects have bullets, go directly to results
+            if not projects_needing_bullets:
+                user = User.query.filter_by(username=username).first()
+                return render_template("bullet_results.html", 
+                                    bullets=existing_bullets,
+                                    user=user)
+            
+            # Otherwise go to compare_results for bullet generation
+            return render_template("compare_results.html",
+                                projects=projects_needing_bullets,
+                                existing_bullets=existing_bullets)
+        
 
+    """Genrate the resume based of AI recommendations"""
     @app.route('/compare/automated', methods=['GET', 'POST'])
     def automated_compare():
         """Automated comparison route with database check"""
@@ -324,7 +361,7 @@ def register_routes(app,db):
         if not projects_needing_bullets:
             flash("Retrieved all bullet points from database.", "info")
             user = User.query.filter_by(username=session.get("username")).first()
-            print(user,'hiiiiiiiiiiiiiiiiiiiiii')
+
             return render_template("bullet_results.html", bullets=existing_bullets, user=user)
         
         # If some projects need bullets, pass only those to comparison results
@@ -447,8 +484,6 @@ def register_routes(app,db):
                                user=user)
 
 
-
-    
     @app.route('/view', methods=['GET'])
     def view():
 
@@ -498,11 +533,6 @@ def register_routes(app,db):
             else:
                 flash("User not found!", "error")
                 return redirect(url_for('delete_user'))  # Stay on delete page if user not found
-
-    """ 
-        Placeholder for a tracking feature. Intended for future implementation
-        of project tracking functionality.
-    """
     
 
     @app.route('/edit_project',methods=['POST','GET'])
@@ -553,10 +583,13 @@ def register_routes(app,db):
             description = request.form.get("project_info")
 
             # Generating bullet points
-            input_for_propmpt = f"{project_name} : {description}"
-            bullets_dict = generate_bullets(input_for_propmpt)
+            combined_inputs = {
+                project_name: description.strip()
+            }
+            bullets_dict = generate_bullets(combined_inputs)
+            print(bullets_dict)
             bullets = bullets_dict[project_name]
-
+            
             #Adding to database
             project = db.session.query(Projects).filter_by(username=username, projectname=project_name).first()
             if project:
@@ -571,5 +604,3 @@ def register_routes(app,db):
                 print("Error:", e)
 
             return redirect(url_for("edit_project",name=project_name))
-            
-

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="text-3xl font-semibold mb-[10vh] pt-[5vh] text-center text-white">Select Projects</h2>
+
+<div class="w-[80vw] md:w-[60vw] m-auto bg-white p-8 rounded-xl shadow-lg">
+  <form id="projectForm" method="POST" class="flex flex-col gap-5">
+    <p class="text-center text-gray-600 mb-4">Select up to 3 projects for your resume</p>
+    <button type="submit" 
+            class="bg-[#020091] text-white py-3 rounded-md hover:bg-black text-lg mt-6">
+      Generate Resume
+    </button>
+    <div class="grid gap-4">
+      {% for project in projects %}
+        <div class="flex items-start gap-3 p-4 border rounded-lg {% if project.has_bullets %}bg-blue-50{% endif %}">
+          <input type="checkbox" 
+                 name="project_names" 
+                 value="{{ project.name }}"
+                 class="mt-1 cursor-pointer"
+                 onclick="limitSelections(this)">
+          <div>
+            <h4 class="font-semibold">{{ project.name }}</h4>
+            <p class="text-sm text-gray-600">{{ project.description }}</p>
+            {% if project.has_bullets %}
+              <span class="text-xs text-blue-600 mt-1 block">Has existing bullet points</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  </form>
+</div>
+
+<script>
+function limitSelections(checkbox) {
+  const form = document.getElementById('projectForm');
+  const checked = form.querySelectorAll('input[type="checkbox"]:checked');
+  
+  if (checked.length > 3) {
+    checkbox.checked = false;
+    alert('You can only select up to 3 projects');
+  }
+}
+</script>
+{% endblock %}
