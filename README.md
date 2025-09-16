@@ -1,7 +1,7 @@
 ## Github-JD
 A tool that generates resumes from your existing GitHub projects. Compare job descriptions to filter relevant projects and automatically build a resume or handpick the projects yourself. Acts as a personal database for storing projects and bullet points, which you can generate with AI or write manually. It makes resume updates easier and keeps track of your work, perfect for casting a wide net on entry-level roles.
 ---
-
+Visit the site [here](https://github-jd.onrender.com)
 ### Features
 
 * Add Projects: Scrape or manually add your GitHub projects.
