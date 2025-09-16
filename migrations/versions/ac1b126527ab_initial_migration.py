@@ -1,8 +1,8 @@
-"""empty message
+"""Initial migration
 
-Revision ID: e52ee508d4e5
+Revision ID: ac1b126527ab
 Revises: 
-Create Date: 2025-04-22 14:59:09.531945
+Create Date: 2025-09-16 12:55:50.208351
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e52ee508d4e5'
+revision = 'ac1b126527ab'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -31,6 +31,17 @@ def upgrade():
     sa.Column('pid', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('username', sa.Text(), nullable=False),
     sa.Column('password_hash', sa.Text(), nullable=False),
+    sa.Column('email', sa.Text(), nullable=True),
+    sa.Column('linkedin', sa.Text(), nullable=True),
+    sa.Column('github', sa.Text(), nullable=True),
+    sa.Column('fullname', sa.Text(), nullable=True),
+    sa.Column('programming_languages', sa.Text(), nullable=True),
+    sa.Column('libraries', sa.Text(), nullable=True),
+    sa.Column('tools', sa.Text(), nullable=True),
+    sa.Column('school_name', sa.Text(), nullable=True),
+    sa.Column('course', sa.Text(), nullable=True),
+    sa.Column('duration', sa.Text(), nullable=True),
+    sa.Column('extracurriculars', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('pid'),
     sa.UniqueConstraint('username')
     )
