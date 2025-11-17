@@ -6,7 +6,7 @@ from functions.Scraping import ScrapeProjects
 from functions.prompt import compare_jd,load_data,get_descriptions,generate_bullets
 from functions.upload import allowed_file,process_pdf,process_text,UPLOAD_FOLDER
 from functions.Resume_docx import build_profile_docx
-from flask_bcrypt import Bcrypt  # <-- 1. IMPORT BCRYPT
+from flask_bcrypt import Bcrypt  
 import requests
 import pandas as pd 
 import os
