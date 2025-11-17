@@ -5,6 +5,7 @@ from functions.Scraping import ScrapeProjects
 from functions.prompt import compare_jd,load_data,get_descriptions,generate_bullets
 from functions.upload import allowed_file,process_pdf,process_text,UPLOAD_FOLDER
 from functions.Resume_docx import build_profile_docx
+from flask_bcrypt import Bcrypt  # <-- 1. IMPORT BCRYPT
 import requests
 import pandas as pd 
 import os
@@ -14,6 +15,8 @@ import json
 
 
 def register_routes(app,db):
+    
+    bcrypt = Bcrypt(app) 
 
     """Handles user signup, allowing a maximum of 15 users to register. """
     @app.route('/signup', methods=['GET','POST'])
@@ -25,13 +28,10 @@ def register_routes(app,db):
             name = request.form.get('name')
             password = request.form.get('password')
 
-            user_count = User.query.count()  #Getting the number of stored users
-            if user_count >=15: #if users greater than 15 tell them not allowed and an enless loop of reloading signup
-                flash("User limit reached! No more signups allowed.", "error")
-                return redirect(url_for('signup'))
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
             
-            try: #Adding the user to the db if the maximum number hasnt been reached
-                user = User(username=name, password_hash=password)
+            try: #Adding the user to the db
+                user = User(username=name, password_hash=hashed_password)
                 db.session.add(user)
                 db.session.commit()
                 
@@ -50,10 +50,11 @@ def register_routes(app,db):
             name = request.form.get('name')
             password = request.form.get('password')
 
-            # Check if user exists in the database
-            user = User.query.filter_by(username=name, password_hash=password).first()
+       
+            user = User.query.filter_by(username=name).first()
 
-            if user:
+            
+            if user and bcrypt.check_password_hash(user.password_hash, password):
                 session['username'] = user.username  # Store username in session
                 flash('Login successful!', 'success')
                 return redirect(url_for('index'))  
@@ -295,13 +296,13 @@ def register_routes(app,db):
             if not projects_needing_bullets:
                 user = User.query.filter_by(username=username).first()
                 return render_template("bullet_results.html", 
-                                    bullets=existing_bullets,
-                                    user=user)
+                                       bullets=existing_bullets,
+                                       user=user)
             
             # Otherwise go to compare_results for bullet generation
             return render_template("compare_results.html",
-                                projects=projects_needing_bullets,
-                                existing_bullets=existing_bullets)
+                                   projects=projects_needing_bullets,
+                                   existing_bullets=existing_bullets)
         
 
     """Genrate the resume based of AI recommendations"""
@@ -349,258 +350,5 @@ def register_routes(app,db):
             
             print(user_points)
             if user_points[0]:
-                print("yayy",project_name)
                 bullets = json.loads(user_points[0])
-                existing_bullets[project_name] = bullets
-            else:
-                print("nayy none",project_name)
-                projects_needing_bullets.append(project_name)
-
-
-        # If all projects have bullets, return them directly
-        if not projects_needing_bullets:
-            flash("Retrieved all bullet points from database.", "info")
-            user = User.query.filter_by(username=session.get("username")).first()
-
-            return render_template("bullet_results.html", bullets=existing_bullets, user=user)
-        
-        # If some projects need bullets, pass only those to comparison results
-        descriptions = get_descriptions(projects_needing_bullets)
-        
-        # Pass both the projects needing bullets and existing bullets
-        return render_template(
-            'compare_results.html', 
-            projects=projects_needing_bullets,
-            existing_bullets=existing_bullets
-        )
-    
-    @app.route('/resume_download', methods=['POST'])
-    def resume_download():
-        # fetch current user
-        user = User.query.filter_by(username=session.get("username")).first()
-        if not user:
-            flash("Please login first", "error")
-            return redirect(url_for('login'))
-
-        # get list of project names from the form
-        project_names = request.form.getlist('resume_projects')
-
-        # load their bulletpoints
-        bullets = {}
-        for name in project_names:
-            proj = Projects.query.filter_by(
-                username=user.username,
-                projectname=name
-            ).first()
-            if proj and proj.bulletpoints:
-                try:
-                    bullets[name] = json.loads(proj.bulletpoints)
-                except json.JSONDecodeError:
-                    continue
-
-        # build the .docx
-        docx_io = build_profile_docx(user, bullets)
-
-        filename = f"{(user.fullname or user.username).replace(' ', '_')}.docx"
-        return send_file(
-            docx_io,
-            mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            as_attachment=True,
-            download_name=filename
-        )
-    
-
-    @app.route("/bullet", methods=["POST"])
-    def bullet():
-        """ 
-        Generates bullet points for new projects and combines with existing ones
-        """
-        project_names = []
-        user_inputs = {}
-        existing_project_bullets = {}
-
-        # Extract project names, user inputs, and existing bullets
-        for key, value in request.form.items():
-            if key.startswith("project_name_"):
-                index = key.split("_")[-1]
-                project_names.append(value.strip())
-            elif key.startswith("project_info_"):
-                index = key.split("_")[-1]
-                user_inputs[index] = value.strip()
-            elif key.startswith("existing_project_"):
-                # Get project name and its bullets from hidden inputs
-                project_name = value.strip()
-                project = Projects.query.filter_by(
-                    username=session.get("username"),
-                    projectname=project_name
-                ).first()
-                if project and project.bulletpoints:
-                    try:
-                        existing_project_bullets[project_name] = json.loads(project.bulletpoints)
-                    except json.JSONDecodeError:
-                        continue
-
-        if not project_names and not existing_project_bullets:
-            flash("No projects selected.", "error")
-            return redirect(url_for("compare"))
-
-        # Generate new bullets for projects needing them
-        if project_names:
-            # Fetch and clean descriptions
-            descriptions = get_descriptions(project_names)
-
-            # Merge descriptions with user input
-            combined_inputs = {
-                name: f"{descriptions.get(name, '').strip()} {user_inputs.get(str(i + 1), '').strip()}".strip()
-                for i, name in enumerate(project_names)
-            }
-
-            # Generate new bullets
-            new_bullet_results = generate_bullets(combined_inputs)
-
-            # Save new bullets to database
-            for project_name, bullets in new_bullet_results.items():
-                project = Projects.query.filter_by(
-                    username=session.get("username"),
-                    projectname=project_name
-                ).first()
-                if project:
-                    project.bulletpoints = json.dumps(bullets)
-
-            try:
-                db.session.commit()
-                print("Bullet points successfully generated and saved!", "success")
-            except Exception as e:
-                db.session.rollback()
-                print("Error saving bullet points to database.", "error")
-                print(f"Database error: {e}")
-        
-        # Combine new and existing bullets
-        all_bullets = {**new_bullet_results, **existing_project_bullets} if project_names else existing_project_bullets
-        user = User.query.filter_by(username=session.get("username")).first()
-        print(user,'hiiiiiiiiiiiiiiiiiiiiii')
-        return render_template("bullet_results.html", 
-                               bullets=all_bullets,
-                               user=user)
-
-
-    @app.route('/view', methods=['GET'])
-    def view():
-
-        """ 
-        Displays all stored projects for the logged-in user in a table format.
-        The table includes project names, descriptions, and generated bullet points.
-        """
-
-        username = session.get('username') 
-        if not username:
-            flash("You must be logged in to view projects!", "warning")
-            return redirect(url_for('login'))  
-
-        # Fetch all projects for the user in a single query
-        user_projects = db.session.query(Projects.projectname, Projects.description,Projects.bulletpoints).filter_by(username=username).all()
-        
-        if not user_projects:
-            flash("No projects found.", "info")
-            return render_template('view.html', table=None)
-        formatted_projects = []
-
-        for name, desc, bullets in user_projects:
-            formatted_projects.append({
-                "name": name,
-                "description": desc or "No description provided",
-                "bullets": json.loads(bullets) if bullets is not None else None   # expect list of strings for bullets
-            })
-
-        
-        return render_template('view.html', projects=formatted_projects)
-
-    @app.route('/delete', methods=['GET', 'POST'])
-    def delete_user():
-        if request.method == 'GET':
-            return render_template('delete.html')
-
-        elif request.method == 'POST':
-            username = request.form.get('username')
-
-            # Query for the user
-            user = User.query.filter_by(username=username).first()
-
-            if user:
-                db.session.delete(user)
-                db.session.commit()
-                return redirect(url_for('signup'))  # Redirect to signup after deletion
-            else:
-                flash("User not found!", "error")
-                return redirect(url_for('delete_user'))  # Stay on delete page if user not found
-    
-
-    @app.route('/edit_project',methods=['POST','GET'])
-    def edit_project():
-        if request.method == 'GET':
-            project_name = request.args.get('name')
-            username = session["username"]
-            bullets_tup = db.session.query(Projects.bulletpoints).filter(Projects.username == username, Projects.projectname == project_name).first()
-            bullets= json.loads(bullets_tup[0])
-            return render_template("edit.html", project_name=project_name, bullets=bullets)
-        
-        elif request.method == 'POST':
-            project_name = request.form.get("project_name")
-            username = session.get("username")
-            bullets = request.form.getlist("bullets")  # Comes from multiple inputs with name="bullets"
-
-            project = db.session.query(Projects).filter_by(username=username, projectname=project_name).first()
-            final_bullets = []
-            for i in bullets:
-                if i != "":
-                    final_bullets.append(i)
-            if project:
-                project.bulletpoints = json.dumps(final_bullets)
-
-            try:
-                db.session.commit()
-                flash("Bullet points successfully updated!", "success")
-            except Exception as e:
-                db.session.rollback()
-                flash("Error saving bullet points.", "error")
-                print("Error:", e)
-
-            return redirect(url_for("view"))
-
-
-    @app.route('/add_bullet',methods = ['POST','GET'])
-    def add_bullet():
-        if request.method == 'GET':
-            project_name = request.args.get('name')
-            username = session["username"]
-            description_tup = db.session.query(Projects.description).filter(Projects.username == username, Projects.projectname == project_name).first()
-            description = description_tup[0]
-            return render_template("Generate_single_proj.html",project_name=project_name,description=description)
-        
-        elif request.method == 'POST':
-            username = session.get("username")
-            project_name = request.form.get("project_name")
-            description = request.form.get("project_info")
-
-            # Generating bullet points
-            combined_inputs = {
-                project_name: description.strip()
-            }
-            bullets_dict = generate_bullets(combined_inputs)
-            print(bullets_dict)
-            bullets = bullets_dict[project_name]
-            
-            #Adding to database
-            project = db.session.query(Projects).filter_by(username=username, projectname=project_name).first()
-            if project:
-                project.bulletpoints = json.dumps(bullets)
-
-            try:
-                db.session.commit()
-                flash("Bullet points successfully updated!", "success")
-            except Exception as e:
-                db.session.rollback()
-                flash("Error saving bullet points.", "error")
-                print("Error:", e)
-
-            return redirect(url_for("edit_project",name=project_name))
+                existing_bullets[project
