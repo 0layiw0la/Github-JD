@@ -175,16 +175,17 @@ def register_routes(app,db):
     """ Allows users to add projects from GitHub by scraping data. """
     @app.route('/add', methods=['GET', 'POST'])
     def add():
+
+        if not session.get('username'):
+            flash('Please login first', 'error')
+            return redirect(url_for('login'))
+            
         if request.method == 'GET':
             users = User.query.all()
             return render_template('add.html', users=users)
 
         elif request.method == 'POST':
-            username = request.form.get('username', '').strip()
-
-            if not username:
-                flash("GitHub username cannot be empty!", "danger")
-                return redirect(url_for('add'))
+            username = session.get('username')
 
             try:
                 projects = ScrapeProjects(username)
