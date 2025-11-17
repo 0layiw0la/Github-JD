@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dotenv import load_dotenv
@@ -18,6 +19,7 @@ def create_app():
     app = Flask(__name__,template_folder='templates')
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE
     app.secret_key = SECRET_KEY
+    csrf = CSRFProtect(app)
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     
     app.jinja_env.filters['fromjson'] = json.loads
