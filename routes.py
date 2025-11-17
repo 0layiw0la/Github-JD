@@ -1,4 +1,5 @@
 from flask import render_template,request,redirect,url_for,flash,session,jsonify,send_file
+from werkzeug.utils import secure_filename
 from sqlalchemy.exc import IntegrityError
 from models import User, Projects
 from functions.Scraping import ScrapeProjects
@@ -322,7 +323,8 @@ def register_routes(app,db):
         if 'jd_file' in request.files:
             file = request.files['jd_file']
             if file and allowed_file(file.filename):
-                file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+                filename = secure_filename(file.filename) 
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
                 file.save(file_path)
                 jd_text = process_pdf(file_path)
 
